@@ -8,7 +8,7 @@ import kotlin.math.abs
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String) = File("src", "$name.txt")
+fun readInput(name: String) = File("src\\main\\kotlin\\aoc_2022", "$name.txt")
     .readLines()
 
 /**
