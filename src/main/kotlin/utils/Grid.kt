@@ -4,8 +4,7 @@ import java.util.*
 import kotlin.Comparator
 
 class Grid<T : Any>(
-    val data: List<Array<T>>,
-    val nullData: T? = null
+    val data: List<Array<T>>
 )
 {
     val maxRows = data.size
@@ -15,7 +14,7 @@ class Grid<T : Any>(
         println("maxRows: $maxRows, maxColumns: $maxColumns")
     }
 
-    fun getString(): String {
+    override fun toString(): String {
         val sb = StringBuilder()
         data.forEach {
             sb.appendLine(it.joinToString(""))
@@ -24,12 +23,17 @@ class Grid<T : Any>(
     }
 
     fun print() {
-        println(getString())
+        println(this)
     }
 
     operator fun get(point: MutableIntPoint): T = get(point.first, point.second)
     operator fun get(x: Int, y: Int): T {
         return data[y][x]
+    }
+    fun getCyclic(x: Int, y: Int): T {
+        val yNormalize = normalizeIndex(y, maxRows)
+        val xNormalize = normalizeIndex(x, maxColumns)
+        return get(xNormalize, yNormalize)
     }
     fun getCyclicOrDefault(x: Int, y: Int, default: () -> T): T {
         val yNormalize = normalizeIndex(y, maxRows)

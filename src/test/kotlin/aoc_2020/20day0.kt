@@ -6,12 +6,18 @@ internal class `20day0` {
     private val part1TestFileName = "day1_test"
     private val part1FileName = "day1"
 
+    private fun List<String>.convertToDataObjectList() = run {
+        this
+    }
+
     private fun part1Calculation(input: List<String>) {
-        println(input)
+        val converted = input.convertToDataObjectList()
+        println(converted)
     }
 
     private fun part2Calculation(input: List<String>) {
-        println(input)
+        val converted = input.convertToDataObjectList()
+        println(converted)
     }
 
     @Test

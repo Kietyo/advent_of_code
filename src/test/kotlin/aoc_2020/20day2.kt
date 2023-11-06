@@ -12,9 +12,9 @@ internal class `20day2` {
     private val part1TestFileName = "day2_test"
     private val part1FileName = "day2"
 
-    private fun List<String>.convertToDataObjectList(): List<Line> {
+    private fun List<String>.convertToDataObjectList() = run {
         val regex = Regex("(\\d+)-(\\d+) (\\w): (\\w+)")
-        return map { ele ->
+        map { ele ->
             val matchResult = regex.matchEntire(ele)!!
             val (_, low, high, char, pass) = matchResult.groups.map { it!!.value }
             Line(low.toInt(), high.toInt(), char[0], pass)
