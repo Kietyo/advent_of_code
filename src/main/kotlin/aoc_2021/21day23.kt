@@ -1,3 +1,6 @@
+package aoc_2021
+
+import readInput
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.absoluteValue
 import kotlin.math.sign

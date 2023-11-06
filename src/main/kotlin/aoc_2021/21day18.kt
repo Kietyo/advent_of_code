@@ -1,3 +1,6 @@
+package aoc_2021
+
+import readInput
 import kotlin.math.max
 import kotlin.math.roundToLong
 

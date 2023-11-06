@@ -1,3 +1,7 @@
+package aoc_2022
+
+import readInput
+
 enum class Result {
     WIN,
     LOSE,
@@ -5,7 +9,7 @@ enum class Result {
 }
 
 sealed interface Option {
-    object Rock : Option {
+    data object Rock : Option {
         override val points: Int = 1
         override fun battle(other: Option): Result {
             return when (other) {
@@ -15,7 +19,7 @@ sealed interface Option {
             }
         }
     }
-    object Scissors : Option {
+    data object Scissors : Option {
         override val points: Int = 3
         override fun battle(other: Option): Result {
             return when(other) {
@@ -26,7 +30,7 @@ sealed interface Option {
         }
     }
 
-    object Paper : Option {
+    data object Paper : Option {
         override val points: Int = 2
         override fun battle(other: Option): Result {
             return when(other) {

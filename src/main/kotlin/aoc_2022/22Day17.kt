@@ -1,3 +1,6 @@
+package aoc_2022
+
+import readInput
 import utils.MutableIntPoint
 import utils.toip
 import kotlin.system.exitProcess

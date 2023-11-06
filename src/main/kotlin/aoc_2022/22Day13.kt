@@ -1,3 +1,6 @@
+package aoc_2022
+
+import readInput
 import kotlin.math.sign
 
 sealed class Packet {

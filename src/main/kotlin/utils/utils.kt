@@ -1,5 +1,7 @@
 package utils
 
+fun List<String>.toIntList() = map { it.toInt() }
+
 infix fun Int.toip(y: Int) = MutableIntPoint(this to y)
 
 fun List<String>.toGrid(): Grid<Char> {

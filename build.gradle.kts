@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm") version "1.9.20"
-    application
 }
 
 group = "org.example"
@@ -22,13 +21,13 @@ tasks.test {
 kotlin {
     jvmToolchain(8)
 
-    sourceSets.all {
-        languageSettings {
-            languageVersion = "2.0"
-        }
-    }
+//    sourceSets.all {
+//        languageSettings {
+//            languageVersion = "2.0"
+//        }
+//    }
 }
 
-application {
-    mainClass.set("MainKt")
-}
+//application {
+//    mainClass.set("MainKt")
+//}
