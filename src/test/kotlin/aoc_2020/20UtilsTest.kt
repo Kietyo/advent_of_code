@@ -21,4 +21,13 @@ class `20UtilsTest` {
         val answer = hexColorRegex.matchEntire("#602927")
         println(answer)
     }
+
+    @Test
+    fun understandMath() {
+        println(127 / 2)
+
+        println((127 + 64) / 2)
+
+        println((32 + 63) / 2)
+    }
 }
