@@ -3,8 +3,8 @@ package aoc_2020
 import kotlin.test.Test
 
 internal class `20day0` {
-    private val part1TestFileName = "day1_test"
     private val part1FileName = "day1"
+    private val part1TestFileName = "${part1FileName}_test"
 
     private fun List<String>.convertToDataObjectList() = run {
         this
