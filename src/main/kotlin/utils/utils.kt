@@ -37,3 +37,6 @@ fun <T> Array<T>.getCyclic(idx: Int): T {
 fun <T> List<T>.getCyclic(idx: Int): T {
     return get(normalizeIndex(idx, size))
 }
+fun println(vararg eles: Any?) {
+    kotlin.io.println(eles.joinToString { it.toString() })
+}
