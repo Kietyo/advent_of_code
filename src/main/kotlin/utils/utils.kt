@@ -51,3 +51,20 @@ fun String.splitIntStringPart(): Pair<Int, String>? {
 }
 
 val hexColorRegex = Regex("#(\\d|[a-f]){6}")
+
+fun List<String>.splitByNewLine(): List<List<String>> {
+    val builder = mutableListOf<List<String>>()
+    val current = mutableListOf<String>()
+    forEach {
+        if (it.isEmpty() && current.isNotEmpty()) {
+            builder.add(current.toList())
+            current.clear()
+        } else {
+            current.add(it)
+        }
+    }
+    if (current.isNotEmpty()) {
+        builder.add(current.toList())
+    }
+    return builder
+}

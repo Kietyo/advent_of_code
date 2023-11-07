@@ -1,6 +1,7 @@
 package aoc_2020
 
 import utils.hexColorRegex
+import utils.splitByNewLine
 import utils.splitIntStringPart
 import kotlin.test.Test
 
@@ -106,19 +107,3 @@ internal class `20day4` {
     }
 }
 
-private fun List<String>.splitByNewLine(): List<List<String>> {
-    val builder = mutableListOf<List<String>>()
-    val current = mutableListOf<String>()
-    forEach {
-        if (it.isEmpty() && current.isNotEmpty()) {
-            builder.add(current.toList())
-            current.clear()
-        } else {
-            current.add(it)
-        }
-    }
-    if (current.isNotEmpty()) {
-        builder.add(current.toList())
-    }
-    return builder
-}
