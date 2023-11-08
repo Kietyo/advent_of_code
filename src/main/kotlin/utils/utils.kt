@@ -68,3 +68,7 @@ fun List<String>.splitByNewLine(): List<List<String>> {
     }
     return builder
 }
+
+fun <K, V> Map<K, V>.sumOf(fn: (Map.Entry<K, V>) -> Int) = map {
+    fn(it)
+}.sum()
