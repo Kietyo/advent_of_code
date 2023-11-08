@@ -41,13 +41,13 @@ fun println(vararg eles: Any?) {
     kotlin.io.println(eles.joinToString { it.toString() })
 }
 
-val intStringRegex = Regex("(\\d+)([a-zA-Z]+)")
+val intStringRegex = Regex("(\\d+)(\\D+)")
 
-fun String.splitIntStringPart(): Pair<Int, String>? {
+fun String.splitIntStringPart(trimStringPart: Boolean = false): Pair<Int, String>? {
     val matchResult = intStringRegex.matchEntire(this)
         ?: return null
     val (_, intPart, stringPart) = matchResult.groups.map { it!!.value }
-    return intPart.toInt() to stringPart
+    return intPart.toInt() to if (trimStringPart) stringPart.trim() else stringPart
 }
 
 val hexColorRegex = Regex("#(\\d|[a-f]){6}")

@@ -4,6 +4,7 @@ import utils.hexColorRegex
 import utils.splitByNewLine
 import utils.splitIntStringPart
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class `20day4` {
     private val part1FileName = "day4"
@@ -22,10 +23,10 @@ internal class `20day4` {
         }
     }
 
-    private fun part1Calculation(input: List<String>) {
+    private fun part1Calculation(input: List<String>): Int {
         val converted = input.convertToDataObjectList()
         println(converted)
-        println(converted.count {
+        return (converted.count {
             it.containsKey("byr") &&
             it.containsKey("iyr") &&
             it.containsKey("eyr") &&
@@ -42,11 +43,11 @@ internal class `20day4` {
         } ?: false
     }
 
-    private fun part2Calculation(input: List<String>) {
+    private fun part2Calculation(input: List<String>): Int {
         val converted = input.convertToDataObjectList()
         println(converted)
         val eyeColors = listOf("amb", "blu", "brn", "gry", "grn", "hzl", "oth")
-        println(converted.count { pp: Map<String, String> ->
+        return (converted.count { pp: Map<String, String> ->
             pp.predicateOrFalse("byr") {
                 it.toInt() in 1920..2020
             } &&
@@ -91,7 +92,7 @@ internal class `20day4` {
     @Test
     fun part1() {
         val input = readInput(part1FileName)
-        part1Calculation(input)
+        assertEquals(192, part1Calculation(input))
     }
 
     @Test
@@ -103,7 +104,7 @@ internal class `20day4` {
     @Test
     fun part2() {
         val input = readInput(part1FileName)
-        part2Calculation(input)
+        assertEquals(101, part2Calculation(input))
     }
 }
 

@@ -14,6 +14,10 @@ class `20UtilsTest` {
         assertEquals(0 to "in", "0in".splitIntStringPart())
         assertEquals(177 to "in", "177in".splitIntStringPart())
         assertNull("177".splitIntStringPart())
+
+        assertEquals(177 to " in", "177 in".splitIntStringPart())
+        assertEquals(177 to "in", "177 in".splitIntStringPart(trimStringPart = true))
+        assertEquals(6 to "dotted black bags", "6 dotted black bags".splitIntStringPart(trimStringPart = true))
     }
 
     @Test
