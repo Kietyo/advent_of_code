@@ -1,3 +1,4 @@
+import utils.cross
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -35,16 +36,6 @@ data class Vector3D(val x: Int, val y: Int, val z: Int) {
         }
         return curr
     }
-}
-
-fun <E1, E2> Iterable<E1>.cross(list2: Iterable<E2>): List<Pair<E1, E2>> {
-    val cross = mutableListOf<Pair<E1, E2>>()
-    for (e1 in this) {
-        for (e2 in list2) {
-            cross.add(Pair(e1, e2))
-        }
-    }
-    return cross
 }
 
 data class OverlappingResults(

@@ -79,3 +79,20 @@ fun List<String>.splitByNewLine(): List<List<String>> {
 fun <K, V> Map<K, V>.sumOf(fn: (Map.Entry<K, V>) -> Int) = map {
     fn(it)
 }.sum()
+
+fun <E1, E2> Iterable<E1>.cross(other: Iterable<E2>, includeSameIndex: Boolean = true): List<Pair<E1, E2>> {
+    val cross = mutableListOf<Pair<E1, E2>>()
+    for ((i1, e1) in this.withIndex()) {
+        for ((i2, e2) in other.withIndex()) {
+            if (includeSameIndex) {
+                cross.add(Pair(e1, e2))
+            } else {
+                if (i1 != i2) {
+                    cross.add(Pair(e1, e2))
+
+                }
+            }
+        }
+    }
+    return cross
+}
