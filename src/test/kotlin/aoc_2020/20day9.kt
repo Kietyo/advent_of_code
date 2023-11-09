@@ -32,7 +32,7 @@ internal class `20day9` {
         return blah.first { it != 0L }
     }
 
-    private fun part2Calculation(input: List<String>, weakness: Long) {
+    private fun part2Calculation(input: List<String>, weakness: Long): Long {
         val converted = input.convertToDataObjectList()
         println(converted)
         println(weakness)
@@ -43,8 +43,9 @@ internal class `20day9` {
                 sum += converted[currI]
                 if (sum == weakness) {
                     val nums = converted.subList(i, currI)
-                    println("encryption weakness: ", nums.min() + nums.max())
-                    return
+                    val encryptionWeakness = nums.min() + nums.max()
+                    println("encryption weakness: ", encryptionWeakness)
+                    return encryptionWeakness
                 }
                 if (sum > weakness) {
                     break
@@ -52,6 +53,7 @@ internal class `20day9` {
                 currI++
             }
         }
+        return 0L
     }
 
     @Test
@@ -63,7 +65,7 @@ internal class `20day9` {
     @Test
     fun part1() {
         val input = readInput(fileName)
-        part1Calculation(input, 25)
+        assertEquals(756008079L, part1Calculation(input, 25))
     }
 
     @Test
@@ -78,6 +80,6 @@ internal class `20day9` {
     fun part2() {
         val input = readInput(fileName)
         val weakness = part1Calculation(input, 25)
-        part2Calculation(input, weakness)
+        assertEquals(93727241L, part2Calculation(input, weakness))
     }
 }
