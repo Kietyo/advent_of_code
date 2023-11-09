@@ -2,7 +2,7 @@ package aoc_2020
 
 import utils.hexColorRegex
 import utils.splitByNewLine
-import utils.splitIntStringPart
+import utils.splitIntStringPartsOrNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -58,7 +58,7 @@ internal class `20day4` {
                 it.toInt() in 2020..2030
             } &&
             pp.predicateOrFalse("hgt") {
-                val parts = it.splitIntStringPart()
+                val parts = it.splitIntStringPartsOrNull()
                 if (parts == null) {
                     false
                 } else {

@@ -42,12 +42,19 @@ fun println(vararg eles: Any?) {
 }
 
 val intStringRegex = Regex("(\\d+)(\\D+)")
-
-fun String.splitIntStringPart(trimStringPart: Boolean = false): Pair<Int, String>? {
+fun String.splitIntStringPartsOrNull(trimStringPart: Boolean = false): Pair<Int, String>? {
     val matchResult = intStringRegex.matchEntire(this)
         ?: return null
     val (_, intPart, stringPart) = matchResult.groups.map { it!!.value }
     return intPart.toInt() to if (trimStringPart) stringPart.trim() else stringPart
+}
+
+val stringIntRegex = Regex("(\\D+)(\\d+)")
+fun String.splitStringIntPartsOrNull(trimStringPart: Boolean = false): Pair<String, Int>? {
+    val matchResult = stringIntRegex.matchEntire(this)
+        ?: return null
+    val (_, stringPart, intPart) = matchResult.groups.map { it!!.value }
+    return (if (trimStringPart) stringPart.trim() else stringPart) to intPart.toInt()
 }
 
 val hexColorRegex = Regex("#(\\d|[a-f]){6}")
