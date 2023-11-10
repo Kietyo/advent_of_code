@@ -42,6 +42,7 @@ fun printState(
                             Direction.DOWN -> 'v'
                             Direction.LEFT -> '<'
                             Direction.UP -> '^'
+                            else -> TODO()
                         }
                     )
                 } else {

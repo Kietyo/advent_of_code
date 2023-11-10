@@ -42,7 +42,7 @@ class MutableGrid<T : Any>(
         println(this)
     }
 
-    fun getStride(x: Int, y: Int, direction: Direction): List<PointWithData<T>> {
+    fun getStrideFrom(x: Int, y: Int, direction: Direction): List<PointWithData<T>> {
         val datas = mutableListOf<PointWithData<T>>()
         var i = 1
         while (true) {

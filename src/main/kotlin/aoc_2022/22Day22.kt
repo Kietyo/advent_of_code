@@ -225,6 +225,8 @@ fun calculatePointRelativeToDestinationRegion(
             Rotation.COUNTER_CLOCKWISE -> cubeLength - 1 toip cubeLength - sourcePointWithRespectToRegion.x - 1 // checked
             Rotation.HALF_ROTATION -> cubeLength - 1 - sourcePointWithRespectToRegion.x toip 0
         }
+
+        else -> TODO()
     }
 }
 

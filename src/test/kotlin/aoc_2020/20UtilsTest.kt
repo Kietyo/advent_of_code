@@ -1,6 +1,9 @@
 package aoc_2020
 
+import com.kietyo.ktruth.assertThat
+import utils.Direction
 import utils.MutableGrid
+import utils.PointWithData
 import utils.hexColorRegex
 import utils.splitIntStringPartsOrNull
 import utils.splitStringIntPartsOrNull
@@ -73,6 +76,27 @@ class `20UtilsTest` {
             arrayOf(21, 22, 23, 24, 25),
         ))
 
-
+        assertThat(grid.getStrideFrom(0, 0, Direction.LEFT)).isEmpty()
+        assertThat(grid.getStrideFrom(0, 0, Direction.UP)).isEmpty()
+        assertThat(grid.getStrideFrom(0, 0, Direction.UP_LEFT)).isEmpty()
+        assertThat(grid.getStrideFrom(0, 0, Direction.UP_RIGHT)).isEmpty()
+        assertThat(grid.getStrideFrom(0, 0, Direction.RIGHT)).isEqualTo(listOf(
+            PointWithData(2, 1, 0),
+            PointWithData(3, 2, 0),
+            PointWithData(4, 3, 0),
+            PointWithData(5, 4, 0),
+        ))
+        assertThat(grid.getStrideFrom(0, 0, Direction.DOWN_RIGHT)).isEqualTo(listOf(
+            PointWithData(7, 1, 1),
+            PointWithData(13, 2, 2),
+            PointWithData(19, 3, 3),
+            PointWithData(25, 4, 4),
+        ))
+        assertThat(grid.getStrideFrom(0, 0, Direction.DOWN)).isEqualTo(listOf(
+            PointWithData(6, 0, 1),
+            PointWithData(11, 0, 2),
+            PointWithData(16, 0, 3),
+            PointWithData(21, 0, 4),
+        ))
     }
 }

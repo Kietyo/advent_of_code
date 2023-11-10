@@ -69,6 +69,8 @@ class ElfWorld(val elves: MutableMap<Int, MutableSet<Int>>) {
             Direction.UP -> !existsElf(x - 1, y - 1) &&
                     !existsElf(x, y - 1) &&
                     !existsElf(x + 1, y - 1)
+
+            else -> TODO()
         }
     }
 

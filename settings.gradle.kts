@@ -10,3 +10,6 @@ plugins {
 }
 
 rootProject.name = "advent_of_code"
+
+include("ktruth")
+project(":ktruth").projectDir = file("..\\ktruth")
