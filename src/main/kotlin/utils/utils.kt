@@ -4,17 +4,24 @@ fun List<String>.toIntList() = map { it.toInt() }
 
 infix fun Int.toip(y: Int) = MutableIntPoint(this to y)
 
-fun List<String>.toGrid(): Grid<Char> {
-    return Grid(this.map { it.toCharArray().toTypedArray() })
+fun List<String>.toGrid(): MutableGrid<Char> {
+    return MutableGrid(this.map { it.toCharArray().toTypedArray() })
 }
 
 enum class Direction(
     val movementOffset: IntPoint,
 ) {
     RIGHT(1 toip 0),
-    DOWN(0 toip 1),
     LEFT(-1 toip 0),
-    UP(0 toip -1);
+    DOWN(0 toip 1),
+    UP(0 toip -1),
+    UP_LEFT(-1 toip -1),
+    UP_RIGHT(1 toip -1),
+    DOWN_LEFT(-1 toip 1),
+    DOWN_RIGHT(1 toip 1);
+
+    val x: Int get() = movementOffset.x
+    val y: Int get() = movementOffset.y
 
     fun getNextDirectionClockwise(): Direction {
         return Direction.values().getCyclic(ordinal + 1)

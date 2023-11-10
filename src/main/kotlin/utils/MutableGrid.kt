@@ -3,10 +3,18 @@ package utils
 import java.util.*
 import kotlin.Comparator
 
-class Grid<T : Any>(
+public interface Grid<out T> {
+    operator fun get(point: MutableIntPoint): T
+    operator fun get(x: Int, y: Int): T
+}
+
+data class PointWithData<T>(
+    val data: T, override val x: Int, override val y: Int,
+): IntPoint
+
+class MutableGrid<T : Any>(
     val data: List<Array<T>>
-)
-{
+): Grid<T> {
     val maxRows = data.size
     val maxColumns = data.maxOf { it.size }
 
@@ -22,14 +30,44 @@ class Grid<T : Any>(
         return sb.toString()
     }
 
+    fun contentEquals(other: MutableGrid<T>): Boolean {
+        if (data.size != other.data.size) return false
+        for (i in data.indices) {
+            if (!data[i].contentEquals(other.data[i])) return false
+        }
+        return true
+    }
+
     fun print() {
         println(this)
     }
 
-    operator fun get(point: MutableIntPoint): T = get(point.first, point.second)
-    operator fun get(x: Int, y: Int): T {
+    fun getStride(x: Int, y: Int, direction: Direction): List<PointWithData<T>> {
+        val datas = mutableListOf<PointWithData<T>>()
+        var i = 1
+        while (true) {
+            val newX = x + direction.x * i
+            val newY = y + direction.y * i
+            val data = getOrNull(newX, newY)
+            if (data == null) {
+                break
+            } else {
+                datas.add(PointWithData(data, newX, newY))
+            }
+            i++
+        }
+        return datas
+    }
+
+    override operator fun get(point: MutableIntPoint): T = get(point.first, point.second)
+    override operator fun get(x: Int, y: Int): T {
         return data[y][x]
     }
+
+    operator fun set(x: Int, y: Int, newData: T) {
+        data[y][x] = newData
+    }
+
     fun getCyclic(x: Int, y: Int): T {
         val yNormalize = normalizeIndex(y, maxRows)
         val xNormalize = normalizeIndex(x, maxColumns)
@@ -46,6 +84,10 @@ class Grid<T : Any>(
         return data[y]
     }
 
+    fun getOrNull(x: Int, y: Int): T? {
+        return data.getOrNull(y)?.getOrNull(x)
+    }
+
     fun getOrDefault(x: Int, y: Int, default: () -> T): T {
         return data.getOrNull(y)?.getOrNull(x)
             ?: default()
@@ -55,7 +97,35 @@ class Grid<T : Any>(
         return getOrDefault(point.x, point.y, default)
     }
 
-    fun forEach(fn: (x: Int, y: Int, value: T, gotNextRow: Boolean) -> Unit) {
+    fun getAllPoints(value: T): List<IntPoint> {
+        val allPoints = mutableListOf<IntPoint>()
+        forEach { x, y, v, gotNextRow ->
+            if (v == value) {
+                allPoints.add(MutableIntPoint(x, y))
+            }
+        }
+        return allPoints
+    }
+
+    private fun getAdjacentInternal(x: Int, y: Int): PointWithData<T>? {
+        val data = getOrNull(x, y) ?: return null
+        return PointWithData(data, x, y)
+    }
+
+    fun getAdjacents(x: Int, y: Int): List<PointWithData<T>> {
+        return listOfNotNull(
+            getAdjacentInternal(x - 1, y),
+            getAdjacentInternal(x + 1, y),
+            getAdjacentInternal(x, y - 1),
+            getAdjacentInternal(x, y + 1),
+            getAdjacentInternal(x - 1, y - 1),
+            getAdjacentInternal(x - 1, y + 1),
+            getAdjacentInternal(x + 1, y - 1),
+            getAdjacentInternal(x + 1, y + 1),
+        )
+    }
+
+    fun forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
         data.forEachIndexed { y, chars ->
             var isFirst = true
             chars.forEachIndexed { x, v ->
@@ -64,6 +134,8 @@ class Grid<T : Any>(
             }
         }
     }
+
+    fun copy() = MutableGrid(data.map { it.clone() })
 
     fun find(v: T): MutableIntPoint {
         data.forEachIndexed { y, chars ->
@@ -80,7 +152,7 @@ class Grid<T : Any>(
         val pointToPrev: Map<MutableIntPoint, MutableIntPoint>
     )
 
-    fun dijkstra(source: MutableIntPoint, nextStatesFn: Grid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {
+    fun dijkstra(source: MutableIntPoint, nextStatesFn: MutableGrid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {
         data class DNode(val point: MutableIntPoint, val distance: Int)
 
         val pointToMinLengthFromSource = mutableMapOf<MutableIntPoint, Int>()
@@ -135,7 +207,7 @@ class Grid<T : Any>(
         )
     }
 
-    fun bfs(source: MutableIntPoint, nextStatesFn: Grid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {
+    fun bfs(source: MutableIntPoint, nextStatesFn: MutableGrid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {
         val pointToMinLengthFromSource = mutableMapOf<MutableIntPoint, Int>()
         val pointToPrev = mutableMapOf<MutableIntPoint, MutableIntPoint>()
 

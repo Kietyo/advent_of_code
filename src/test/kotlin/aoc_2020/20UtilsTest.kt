@@ -1,5 +1,6 @@
 package aoc_2020
 
+import utils.MutableGrid
 import utils.hexColorRegex
 import utils.splitIntStringPartsOrNull
 import utils.splitStringIntPartsOrNull
@@ -46,5 +47,32 @@ class `20UtilsTest` {
         println((32 + 63) / 2)
     }
 
+    @Test
+    fun copyGridTest() {
+        val grid = MutableGrid(listOf(
+            arrayOf(1, 2, 3),
+            arrayOf(4, 5, 6),
+        ))
 
+        assertEquals(1, grid[0, 0])
+
+        val gridCopy = grid.copy()
+        gridCopy.set(0, 0, 11)
+
+        assertEquals(1, grid[0, 0])
+        assertEquals(11, gridCopy[0, 0])
+    }
+
+    @Test
+    fun gridGetStrideTest() {
+        val grid = MutableGrid(listOf(
+            arrayOf(1, 2, 3, 4, 5),
+            arrayOf(6, 7, 8, 9, 10),
+            arrayOf(11, 12, 13, 14, 15),
+            arrayOf(16, 17, 18, 19, 20),
+            arrayOf(21, 22, 23, 24, 25),
+        ))
+
+
+    }
 }

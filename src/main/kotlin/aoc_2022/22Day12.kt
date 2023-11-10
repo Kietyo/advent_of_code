@@ -1,12 +1,12 @@
 package aoc_2022.day12
 
 import readInput
-import utils.Grid
+import utils.MutableGrid
 import utils.MutableIntPoint
 import utils.toip
 
 fun main() {
-    val fn = fun Grid<Char>.(point: MutableIntPoint): List<MutableIntPoint> {
+    val fn = fun MutableGrid<Char>.(point: MutableIntPoint): List<MutableIntPoint> {
         val currChar = get(point)
         val nextChar = when (currChar) {
             'S' -> 'a'
@@ -32,7 +32,7 @@ fun main() {
     }
 
     fun part1(input: List<String>): Unit {
-        val grid = Grid(input.map { it.toCharArray().toTypedArray() })
+        val grid = MutableGrid(input.map { it.toCharArray().toTypedArray() })
         println(grid.data.joinToString("\n"))
         val startPoint: MutableIntPoint = grid.find('S')
         val endPoint: MutableIntPoint = grid.find('E')
@@ -61,7 +61,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Unit {
-        val grid = Grid(input.map { it.toCharArray().toTypedArray() })
+        val grid = MutableGrid(input.map { it.toCharArray().toTypedArray() })
         println(grid.data.joinToString("\n"))
         val startPoint: MutableIntPoint = grid.find('S')
         val endPoint: MutableIntPoint = grid.find('E')
