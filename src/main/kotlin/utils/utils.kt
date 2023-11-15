@@ -1,8 +1,59 @@
 package utils
 
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.round
+import kotlin.math.roundToInt
+import kotlin.math.sin
+import kotlin.time.measureTime
+
 fun List<String>.toIntList() = map { it.toInt() }
 
 infix fun Int.toip(y: Int) = MutableIntPoint(this to y)
+
+// Assumes the current number is in terms of degrees.
+fun Number.toRadians(): Double = toDouble() * PI / 180.0
+
+fun createRotationMatrix(degrees: Number): Matrix {
+    val radians = degrees.toRadians()
+    return Matrix(listOf(
+        listOf(cos(radians), -sin(radians)),
+        listOf(sin(radians), cos(radians))
+    ))
+}
+
+data class Matrix(
+    val data: List<List<Number>>
+) {
+    init {
+        if (data.isNotEmpty()) {
+            val size = data.first().size
+            require(data.all { it.size == size })
+        }
+    }
+
+    val rows = data.size
+    val columns = data.firstOrNull()?.size ?: 0
+
+    fun toIntPoint(): MutableIntPoint {
+        require(rows == 2)
+        require(columns == 1)
+        return MutableIntPoint(data[0][0].toDouble().roundToInt(), data[1][0].toDouble().roundToInt())
+    }
+
+    operator fun times(other: IntPoint): Matrix {
+        return Matrix(
+            listOf(
+                listOf(data[0].let {
+                    it[0].toDouble() * other.x + it[1].toDouble() * other.y
+                }),
+                listOf(data[1].let {
+                    it[0].toDouble() * other.x + it[1].toDouble() * other.y
+                }),
+            )
+        )
+    }
+}
 
 fun List<String>.toGrid(): MutableGrid<Char> {
     return MutableGrid(this.map { it.toCharArray().toTypedArray() })

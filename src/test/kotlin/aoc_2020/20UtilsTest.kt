@@ -2,11 +2,19 @@ package aoc_2020
 
 import com.kietyo.ktruth.assertThat
 import utils.Direction
+import utils.Matrix
 import utils.MutableGrid
 import utils.PointWithData
+import utils.createRotationMatrix
 import utils.hexColorRegex
 import utils.splitIntStringPartsOrNull
 import utils.splitStringIntPartsOrNull
+import utils.toRadians
+import utils.toip
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -99,4 +107,29 @@ class `20UtilsTest` {
             PointWithData(21, 0, 4),
         ))
     }
+
+    @Test
+    fun understandAngles() {
+        println(sin(45.toRadians()))
+        println(cos(45.toRadians()))
+        println(PI / 4)
+        println(sqrt(2.0) / 2.0)
+
+        val eastDir = 1 toip 0
+        val matrix = createRotationMatrix(90)
+        val multiplied = matrix * eastDir
+
+        println(multiplied)
+        assertThat(multiplied.toIntPoint()).isEqualTo(0 toip 1)
+
+        val wp1 = 3 toip -6
+        val m1 = createRotationMatrix(180)
+        val r1 = m1 * wp1
+
+        println(r1)
+        println(r1.toIntPoint())
+
+        assertThat(r1.toIntPoint()).isEqualTo(-3 toip 6)
+    }
 }
+
