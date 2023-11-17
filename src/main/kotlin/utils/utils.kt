@@ -1,5 +1,7 @@
 package utils
 
+import com.sun.org.apache.xpath.internal.operations.Bool
+import kotlin.experimental.ExperimentalTypeInference
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.round
@@ -134,9 +136,37 @@ fun List<String>.splitByNewLine(): List<List<String>> {
     return builder
 }
 
-fun <K, V> Map<K, V>.sumOf(fn: (Map.Entry<K, V>) -> Int) = map {
-    fn(it)
-}.sum()
+fun List<String>.splitByPredicate(predicate: (String) -> Boolean): List<List<String>> {
+    val builder = mutableListOf<List<String>>()
+    val current = mutableListOf<String>()
+    var isFirst = true
+    forEach {
+        val matchesPredicate = predicate(it)
+        if (matchesPredicate) {
+            if (isFirst) {
+                current.add(it)
+                isFirst = false
+            } else {
+                builder.add(current.toList())
+                current.clear()
+                current.add(it)
+            }
+        } else {
+            current.add(it)
+        }
+    }
+    if (current.isNotEmpty()) {
+        builder.add(current.toList())
+    }
+    return builder
+}
+
+@OptIn(ExperimentalTypeInference::class)
+@OverloadResolutionByLambdaReturnType
+fun <K, V> Map<K, V>.sumOf(fn: (Map.Entry<K, V>) -> Int) = map { fn(it) }.sum()
+@OptIn(ExperimentalTypeInference::class)
+@OverloadResolutionByLambdaReturnType
+fun <K, V> Map<K, V>.sumOf(fn: (Map.Entry<K, V>) -> Long) = map { fn(it) }.sum()
 
 fun <E1, E2> Iterable<E1>.cross(other: Iterable<E2>, includeSameIndex: Boolean = true): List<Pair<E1, E2>> {
     val cross = mutableListOf<Pair<E1, E2>>()

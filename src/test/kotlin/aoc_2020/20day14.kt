@@ -1,0 +1,153 @@
+package aoc_2020
+
+import utils.println
+import utils.splitByNewLine
+import utils.splitByPredicate
+import utils.sumOf
+import kotlin.test.Test
+
+internal class `20day14` {
+    private val fileName = "day14"
+    private val testFileName = "${fileName}_test"
+
+    private fun List<String>.convertToDataObjectList() = run {
+        this
+    }
+
+    private fun calculateSum(input: List<String>, mem: MutableMap<Long, Long>) {
+        val mask = input[0].split(" = ")[1].toCharArray().reversed()
+        println("mask: $mask")
+
+        var orMask = 0L
+        mask.forEachIndexed { index, c ->
+            if (c == '1') {
+                orMask = orMask or ((1L shl index))
+            }
+        }
+
+        var andMask = "1".repeat(36).toLong(2)
+        mask.forEachIndexed { index, c ->
+            if (c == '0') {
+                andMask = andMask xor ((1L shl index).toLong())
+            }
+        }
+        println("orMask: $orMask, ${orMask.toString(2)}")
+        println("andMask: $andMask, ${andMask.toString(2)}")
+
+        val regex = Regex("mem\\[(\\d+)\\] = (\\d+)")
+
+        input.drop(1).forEach {
+            println("processing $it")
+            val matchResult = regex.matchEntire(it)
+            val (idx, v) = matchResult!!.groupValues.drop(1).map { it.toLong() }
+            val newValue = (v or orMask) and andMask
+            println(idx, v, newValue)
+            mem[idx] = newValue
+        }
+    }
+
+    private fun calculateSum2(input: List<String>, mem: MutableMap<Long, Long>) {
+        val mask = input[0].split(" = ")[1].toCharArray().reversed()
+        println("mask: $mask")
+
+        var orMask = 0L
+        mask.forEachIndexed { index, c ->
+            if (c == '1') {
+                orMask = orMask or ((1L shl index))
+            }
+        }
+
+        var andMask = "1".repeat(36).toLong(2)
+        mask.forEachIndexed { index, c ->
+            if (c == '0') {
+                andMask = andMask xor ((1L shl index).toLong())
+            }
+        }
+        println("orMask: $orMask, ${orMask.toString(2)}")
+        println("andMask: $andMask, ${andMask.toString(2)}")
+
+        val regex = Regex("mem\\[(\\d+)\\] = (\\d+)")
+
+        input.drop(1).forEach {
+            println("processing $it")
+            val matchResult = regex.matchEntire(it)
+            val (idx, v) = matchResult!!.groupValues.drop(1).map { it.toLong() }
+            val newValue = (v or orMask) and andMask
+            println(idx, v, newValue)
+            mem[idx] = newValue
+        }
+    }
+
+    private fun part1Calculation(input: List<String>) {
+        val converted = input.convertToDataObjectList()
+//        println(converted)
+
+        val splitLines = converted.splitByPredicate { it.startsWith("mask = ") }
+        val mem = mutableMapOf<Long, Long>()
+
+        splitLines.forEach {
+            calculateSum(it, mem)
+        }
+
+        println(mem.sumOf { it.value })
+    }
+
+    private fun part2Calculation(input: List<String>) {
+        val converted = input.convertToDataObjectList()
+        println(converted)
+
+        val splitLines = converted.splitByPredicate { it.startsWith("mask = ") }
+        val mem = mutableMapOf<Long, Long>()
+
+        splitLines.forEach {
+            calculateSum(it, mem)
+        }
+
+        println(mem.sumOf { it.value })
+    }
+
+    @Test
+    fun part1Test() {
+        val input = readInput(testFileName)
+        part1Calculation(input)
+    }
+
+    @Test
+    fun part1() {
+        val input = readInput(fileName)
+        // 17735573558716, too high
+        // 14839536808842
+        part1Calculation(input)
+    }
+
+    @Test
+    fun part2Test() {
+        val input = readInput(testFileName)
+        part2Calculation(input)
+    }
+
+    @Test
+    fun part2Test2() {
+        val input = readInput("day14_test2")
+        part2Calculation(input)
+    }
+
+    @Test
+    fun part2() {
+        val input = readInput(fileName)
+        part2Calculation(input)
+    }
+
+//    000000000000000000000000000000111010  (decimal 58)
+//    000000000000000000000000000000111011  (decimal 59)
+//
+//    000000000000000000000000000000010000  (decimal 16)
+//    000000000000000000000000000000010001  (decimal 17)
+//    000000000000000000000000000000010010  (decimal 18)
+//    000000000000000000000000000000010011  (decimal 19)
+//
+//    000000000000000000000000000000011000  (decimal 24)
+//    000000000000000000000000000000011001  (decimal 25)
+//    000000000000000000000000000000011010  (decimal 26)
+//    000000000000000000000000000000011011  (decimal 27)
+}

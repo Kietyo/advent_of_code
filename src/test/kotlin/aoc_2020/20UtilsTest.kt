@@ -202,5 +202,25 @@ class `20UtilsTest` {
         println(539465 / 23)
         println(1230684 / 23)
     }
+
+    @Test
+    fun day14Scrap1() {
+        println(8.toString(2))
+
+        println(1 shl 0)
+        println(1 shl 1)
+        println(1 shl 2)
+        println(1 shl 3)
+
+        println("11X10X0X11X0X0010110XX01100X0110X011".length)
+
+        // 0X1001X
+        // 1100100
+        println(100.toString(2))
+
+        // 101010
+        // X1001X
+        println(42.toString(2))
+    }
 }
 
