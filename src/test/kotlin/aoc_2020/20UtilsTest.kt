@@ -131,5 +131,76 @@ class `20UtilsTest` {
 
         assertThat(r1.toIntPoint()).isEqualTo(-3 toip 6)
     }
+
+    @Test
+    fun day13Scrap() {
+//        curr: 69, matches i: 13, interval: 41
+//        curr: 1012, matches i: 13, interval: 41
+//        curr: 1955, matches i: 13, interval: 41
+//        curr: 2898, matches i: 13, interval: 41
+//        curr: 3841, matches i: 13, interval: 41
+//        curr: 4784, matches i: 13, interval: 41
+//        curr: 5727, matches i: 13, interval: 41
+//        curr: 6670, matches i: 13, interval: 41
+//        curr: 7613, matches i: 13, interval: 41
+
+        println(1012 - 69)
+        println(1955 - 1012)
+        println(2898 - 1955)
+
+        // +13
+
+        println("===69===")
+        println(69 / 23)
+        println((69 + 13) / 41)
+
+        println("===1012===")
+        println(1012 / 23)
+        println((1012 + 13) / 41)
+
+        println("===1955===")
+        println(1955 / 23)
+        println((1955 + 13) / 41)
+
+        println("===2898===")
+        println(2898 / 23)
+        println((2898 + 13) / 41)
+
+//        count: 571, curr: 539465, matches i: 23, interval: 733
+//        count: 1304, curr: 1230684, matches i: 23, interval: 733
+//        count: 2037, curr: 1921903, matches i: 23, interval: 733
+//        count: 2770, curr: 2613122, matches i: 23, interval: 733
+//        count: 3503, curr: 3304341, matches i: 23, interval: 733
+//        count: 4236, curr: 3995560, matches i: 23, interval: 733
+
+//        i: 52, curr: 21133177952
+//        Largest i reached: 52, intervals[i]: 29, curr: 21133177952
+//        i: 52, curr: 105303606801
+//        i: 52, curr: 189474035650
+
+        println("=======")
+        println(21133177952L / 23)
+        println(105303606801L / 23)
+        println(189474035650L / 23)
+        println("=======")
+
+        println(8238001550L - 4578417687L)
+        println(4578417687L - 918833824L)
+        println("=======")
+
+        println(21133177952L + 3659583863L * 23L)
+
+        // Largest i reached: 52, intervals[i]: 29, curr: 21133177952
+        println(21133177952L + 918833824L*23)
+
+        println((42266355904 + 52) % 29)
+
+    }
+
+    @Test
+    fun day13Scrap2() {
+        println(539465 / 23)
+        println(1230684 / 23)
+    }
 }
 
