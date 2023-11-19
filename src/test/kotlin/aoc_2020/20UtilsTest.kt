@@ -203,6 +203,8 @@ class `20UtilsTest` {
         println(1230684 / 23)
     }
 
+
+
     @Test
     fun day14Scrap1() {
         println(8.toString(2))
@@ -221,6 +223,13 @@ class `20UtilsTest` {
         // 101010
         // X1001X
         println(42.toString(2))
+
+//        println(expandNumbers("000000000000000000000000000000X1101X"))
+//        println(expandNumbers("00000000000000000000000000000001X0XX"))
+
+        // 000000000000000000000000000000101010
+        // 000000000000000000000000000000101010
+        println(42.toString(2).padStart(36, '0'))
     }
 }
 

@@ -1,9 +1,11 @@
 package aoc_2020
 
+import com.kietyo.ktruth.assertThat
 import utils.println
 import utils.splitByNewLine
 import utils.splitByPredicate
 import utils.sumOf
+import java.lang.StringBuilder
 import kotlin.test.Test
 
 internal class `20day14` {
@@ -46,25 +48,24 @@ internal class `20day14` {
         }
     }
 
+    private fun expandNumbers(code: String): List<Long> {
+        val codes = mutableListOf(code)
+        val results = mutableListOf<Long>()
+        while (codes.isNotEmpty()) {
+            val curr = codes.removeFirst()
+            if (curr.contains('X')) {
+                codes.add(curr.replaceFirst('X', '0'))
+                codes.add(curr.replaceFirst('X', '1'))
+            } else {
+                results.add(curr.toLong(2))
+            }
+        }
+        return results
+    }
+
     private fun calculateSum2(input: List<String>, mem: MutableMap<Long, Long>) {
-        val mask = input[0].split(" = ")[1].toCharArray().reversed()
+        val mask = input[0].split(" = ")[1]
         println("mask: $mask")
-
-        var orMask = 0L
-        mask.forEachIndexed { index, c ->
-            if (c == '1') {
-                orMask = orMask or ((1L shl index))
-            }
-        }
-
-        var andMask = "1".repeat(36).toLong(2)
-        mask.forEachIndexed { index, c ->
-            if (c == '0') {
-                andMask = andMask xor ((1L shl index).toLong())
-            }
-        }
-        println("orMask: $orMask, ${orMask.toString(2)}")
-        println("andMask: $andMask, ${andMask.toString(2)}")
 
         val regex = Regex("mem\\[(\\d+)\\] = (\\d+)")
 
@@ -72,9 +73,29 @@ internal class `20day14` {
             println("processing $it")
             val matchResult = regex.matchEntire(it)
             val (idx, v) = matchResult!!.groupValues.drop(1).map { it.toLong() }
-            val newValue = (v or orMask) and andMask
-            println(idx, v, newValue)
-            mem[idx] = newValue
+            val paddedIdx = idx.toString(2).padStart(36, '0')
+            println("idx: $idx, v: $v, paddedIdx: $paddedIdx")
+
+            val result = StringBuilder()
+
+            for ((idx, c) in paddedIdx.withIndex()) {
+                if (mask[idx] == '0') {
+                    result.append(c)
+                } else if (mask[idx] == '1') {
+                    result.append('1')
+                } else if (mask[idx] == 'X') {
+                    result.append('X')
+                } else {
+                    TODO()
+                }
+            }
+
+            require(result.length == 36)
+
+            val expandedNumbers = expandNumbers(result.toString())
+            for (n in expandedNumbers) {
+                mem[n] = v
+            }
         }
     }
 
@@ -92,7 +113,7 @@ internal class `20day14` {
         println(mem.sumOf { it.value })
     }
 
-    private fun part2Calculation(input: List<String>) {
+    private fun part2Calculation(input: List<String>): Long {
         val converted = input.convertToDataObjectList()
         println(converted)
 
@@ -100,10 +121,12 @@ internal class `20day14` {
         val mem = mutableMapOf<Long, Long>()
 
         splitLines.forEach {
-            calculateSum(it, mem)
+            calculateSum2(it, mem)
         }
 
-        println(mem.sumOf { it.value })
+        val res = mem.sumOf { it.value }
+        println(res)
+        return res
     }
 
     @Test
@@ -135,7 +158,7 @@ internal class `20day14` {
     @Test
     fun part2() {
         val input = readInput(fileName)
-        part2Calculation(input)
+        assertThat( part2Calculation(input)).isEqualTo(4215284199669L)
     }
 
 //    000000000000000000000000000000111010  (decimal 58)
