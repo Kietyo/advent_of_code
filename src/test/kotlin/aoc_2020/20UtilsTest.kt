@@ -231,5 +231,14 @@ class `20UtilsTest` {
         // 000000000000000000000000000000101010
         println(42.toString(2).padStart(36, '0'))
     }
+
+    @Test
+    fun understandLambdas() {
+        val ls = listOf(1, 2, 3, 4, 5, 6)
+
+        ls.forEach {
+            println(it)
+        }
+    }
 }
 
