@@ -65,9 +65,41 @@ internal class `23day3` {
         return sum
     }
 
-    private fun part2Calculation(input: List<String>) {
-        val converted = input.convertToDataObjectList()
-        println(converted)
+    private fun part2Calculation(input: List<String>): Int {
+        val grid = input.convertToDataObjectList().toGrid()
+        val numsPerRow = input.map {
+            it.splitByPredicateIndexed { !it.isDigit() }.mapNotNull {
+                val num = it.value.toIntOrNull()
+                if (num == null) {
+                    null
+                } else {
+                    IndexedValue(it.index, num)
+                }
+            }
+        }
+        // x=3
+        // 0, 2
+        var sum = 0
+        for ((y, line) in input.withIndex()) {
+            for ((x, c) in line.withIndex()) {
+                if (c == '*') {
+                    val xRange = (x-1)..(x+1)
+                    val closeNums = numsPerRow.withIndex().flatMap { (y2, nums) ->
+                        nums.filter {(x2, num) ->
+                            y2 in (y-1)..(y+1) &&
+                            (x2..<x2+num.toString().length).intersect(xRange).isNotEmpty()
+                        }
+                    }
+                    require(closeNums.size <= 2)
+                    if (closeNums.size == 2) {
+                        sum += closeNums.first().value * closeNums.last().value
+                    }
+                }
+            }
+        }
+
+        println(sum)
+        return sum
     }
 
     @Test
@@ -92,12 +124,12 @@ internal class `23day3` {
     @Test
     fun part2Test() {
         val input = readInput(testFileName)
-        part2Calculation(input)
+        assertThat(part2Calculation(input)).isEqualTo(467835)
     }
 
     @Test
     fun part2() {
         val input = readInput(fileName)
-        part2Calculation(input)
+        assertThat(part2Calculation(input)).isEqualTo(79844424)
     }
 }
