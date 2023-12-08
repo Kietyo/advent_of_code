@@ -43,7 +43,6 @@ fun String.splitByPredicateIndexed(predicate: (Char) -> Boolean): List<IndexedVa
     return splitData
 }
 
-
 fun List<String>.toIntList() = map { it.toInt() }
 
 infix fun Int.toip(y: Int) = MutableIntPoint(this to y)
