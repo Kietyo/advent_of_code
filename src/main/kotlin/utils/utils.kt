@@ -9,6 +9,41 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.time.measureTime
 
+infix fun Int.ind(v: String) = IndexedValue(this, v)
+
+
+fun String.splitByPredicate(predicate: (Char) -> Boolean) = splitByPredicateIndexed(predicate).map {
+    it.value
+}
+
+fun String.splitByPredicateIndexed(predicate: (Char) -> Boolean): List<IndexedValue<String>> {
+    val splitData = mutableListOf<IndexedValue<String>>()
+
+    val runningSb = StringBuilder()
+    var currWordI = 0
+    var currI = 0
+    val itr = this.iterator()
+    while (itr.hasNext()) {
+        val currChar = itr.nextChar()
+        if (predicate(currChar)) {
+            if (runningSb.isNotEmpty()) {
+                splitData.add(IndexedValue(currWordI, runningSb.toString()))
+            }
+            splitData.add(IndexedValue(currI, currChar.toString()))
+            runningSb.clear()
+            currWordI = currI+1
+        } else {
+            runningSb.append(currChar)
+        }
+        currI++
+    }
+    if (runningSb.isNotEmpty()) {
+        splitData.add(IndexedValue(currWordI, runningSb.toString()))
+    }
+    return splitData
+}
+
+
 fun List<String>.toIntList() = map { it.toInt() }
 
 infix fun Int.toip(y: Int) = MutableIntPoint(this to y)

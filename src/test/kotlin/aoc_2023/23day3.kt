@@ -1,9 +1,8 @@
 package aoc_2023
 
-import aoc_2022.splitByPredicate
-import aoc_2022.splitByPredicateIndexed
 import com.kietyo.ktruth.assertThat
 import utils.Grid
+import utils.splitByPredicateIndexed
 import utils.toGrid
 import kotlin.test.Test
 

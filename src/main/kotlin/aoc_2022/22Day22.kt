@@ -6,53 +6,9 @@ import utils.MutableGrid
 import utils.IntPoint
 import utils.MutableIntPoint
 import utils.normalizeIndex
+import utils.splitByPredicate
 import utils.toip
 
-fun String.splitByPredicate(predicate: (Char) -> Boolean): List<String> {
-    val splitData = mutableListOf<String>()
-
-    val runningSb = StringBuilder()
-    val itr = this.iterator()
-    while (itr.hasNext()) {
-        val currChar = itr.nextChar()
-        if (predicate(currChar)) {
-            splitData.add(runningSb.toString())
-            splitData.add(currChar.toString())
-            runningSb.clear()
-        } else {
-            runningSb.append(currChar)
-        }
-    }
-    if (runningSb.isNotEmpty()) {
-        splitData.add(runningSb.toString())
-    }
-    return splitData
-}
-
-fun String.splitByPredicateIndexed(predicate: (Char) -> Boolean): List<IndexedValue<String>> {
-    val splitData = mutableListOf<IndexedValue<String>>()
-
-    val runningSb = StringBuilder()
-    var currWordI = 0
-    var currI = 0
-    val itr = this.iterator()
-    while (itr.hasNext()) {
-        val currChar = itr.nextChar()
-        if (predicate(currChar)) {
-            splitData.add(IndexedValue(currWordI, runningSb.toString()))
-            splitData.add(IndexedValue(currI, currChar.toString()))
-            runningSb.clear()
-            currWordI = currI+1
-        } else {
-            runningSb.append(currChar)
-        }
-        currI++
-    }
-    if (runningSb.isNotEmpty()) {
-        splitData.add(IndexedValue(currWordI, runningSb.toString()))
-    }
-    return splitData
-}
 
 
 enum class Rotation {
