@@ -3,9 +3,11 @@ package utils
 import java.util.*
 import kotlin.Comparator
 
-public interface Grid<out T> {
+public interface Grid<T> {
     operator fun get(point: MutableIntPoint): T
     operator fun get(x: Int, y: Int): T
+    fun getOrDefault(x: Int, y: Int, default: () -> T): T
+    fun getOrDefault(point: IntPoint, default: () -> T): T
 }
 
 data class PointWithData<T>(
@@ -88,12 +90,12 @@ class MutableGrid<T : Any>(
         return data.getOrNull(y)?.getOrNull(x)
     }
 
-    fun getOrDefault(x: Int, y: Int, default: () -> T): T {
+    override fun getOrDefault(x: Int, y: Int, default: () -> T): T {
         return data.getOrNull(y)?.getOrNull(x)
             ?: default()
     }
 
-    fun getOrDefault(point: IntPoint, default: () -> T): T {
+    override fun getOrDefault(point: IntPoint, default: () -> T): T {
         return getOrDefault(point.x, point.y, default)
     }
 
