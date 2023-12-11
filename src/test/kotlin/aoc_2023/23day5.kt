@@ -1,12 +1,10 @@
 package aoc_2023
 
 import com.kietyo.ktruth.assertThat
-import length
 import utils.println
 import utils.splitByNewLine
 import kotlin.math.min
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 internal class `23day5` {
     private val fileName = "day5"
@@ -23,7 +21,7 @@ internal class `23day5` {
     ) {
         init {
             require(sourceDestRanges.all {
-                (it.first.last - it.first.first) == (it.second.last - it.second.first)
+                it.first.length() == it.second.length()
             })
         }
 
@@ -34,11 +32,22 @@ internal class `23day5` {
             return rangeOrNull.second.first + idx
         }
 
-//        fun getRange(sourceRange: LongRange): LongRange {
-//            val intersectinRanges = sourceDestRanges.filter {
-//                sourceRange.intersectsWith()
-//            }
-//        }
+        fun getDestRanges(sourceRange: LongRange): List<LongRange> {
+            var nonCustomRange = listOf(sourceRange)
+            val customDestRanges = sourceDestRanges.mapNotNull {
+                val intersectSourceRange = sourceRange.intersectRangeOrNull(it.first)
+                if (intersectSourceRange == null) {
+                    null
+                } else {
+                    nonCustomRange = nonCustomRange.flatMap {
+                        it.subtractRange(intersectSourceRange)
+                    }
+
+                    it.second.first..(it.second.first + intersectSourceRange.length() - 1)
+                }
+            }
+            return nonCustomRange + customDestRanges
+        }
     }
 
     private fun part1Calculation(input: List<String>): Long {
@@ -87,9 +96,11 @@ internal class `23day5` {
         return minLocation
     }
 
-    private fun getMinOfRange(maps: List<SourceDestMap>,
-                              source: String,
-                              sourceRanges: List<LongRange>) {
+    private fun getMinOfRange(
+        maps: List<SourceDestMap>,
+        source: String,
+        sourceRanges: List<LongRange>
+    ) {
         val mapOrNull = maps.firstOrNull { it.source == source }
         if (mapOrNull == null) {
             TODO()
@@ -100,9 +111,9 @@ internal class `23day5` {
         val converted = input.convertToDataObjectList().splitByNewLine()
         println(converted)
 
-        val seeds = converted[0].first().removePrefix("seeds: ").split(" ").map { it.toLong() }
+        val seedRanges = converted[0].first().removePrefix("seeds: ").split(" ").map { it.toLong() }
             .windowed(2, step = 2).map { it.first()..<it.first() + it.last() }
-        println("seeds: $seeds")
+        println("seedRanges: $seedRanges")
 
         val regex = "(\\w+)-to-(\\w+) map:".toRegex()
 
@@ -127,30 +138,36 @@ internal class `23day5` {
         // cache of seed range to min location value found
         val cache = mutableListOf<Pair<LongRange, Long>>()
 
-        val minLocation = seeds.minOf {
-            var minLocation = Long.MAX_VALUE
-            for (seed in it) {
-                val cacheResult = cache.firstOrNull { seed in it.first }
-                if (cacheResult != null) {
-                    minLocation = min(cacheResult.second, minLocation)
-                    continue
-                }
-//                kotlin.io.println("processing seed: $seed")
-                var currNum = seed
-                var currSource = "seed"
-                while (true) {
-                    val mapOrNull = maps.firstOrNull { it.source == currSource }
-                        ?: break
-                    currNum = mapOrNull.get(currNum)
-                    currSource = mapOrNull.dest
-                }
-//                println(currSource, currNum)
-                minLocation = min(currNum, minLocation)
-            }
-            cache.add(it to minLocation)
-            minLocation
-        }
-        kotlin.io.println(minLocation)
+        val firstSeedRange = seedRanges.first()
+        var currSource = "seed"
+        val mapOrNull = maps.firstOrNull { it.source == currSource }!!
+        val destRanges = mapOrNull.getDestRanges(firstSeedRange)
+        println(destRanges)
+
+//        val minLocation = seeds.minOf {
+//            var minLocation = Long.MAX_VALUE
+//            for (seed in it) {
+//                val cacheResult = cache.firstOrNull { seed in it.first }
+//                if (cacheResult != null) {
+//                    minLocation = min(cacheResult.second, minLocation)
+//                    continue
+//                }
+//                //                kotlin.io.println("processing seed: $seed")
+//                var currNum = seed
+//                var currSource = "seed"
+//                while (true) {
+//                    val mapOrNull = maps.firstOrNull { it.source == currSource }
+//                        ?: break
+//                    currNum = mapOrNull.get(currNum)
+//                    currSource = mapOrNull.dest
+//                }
+//                //                println(currSource, currNum)
+//                minLocation = min(currNum, minLocation)
+//            }
+//            cache.add(it to minLocation)
+//            minLocation
+//        }
+//        kotlin.io.println(minLocation)
     }
 
     @Test
@@ -212,7 +229,55 @@ internal class `23day5` {
         assertThat((4L..7L).intersectRangeOrNull(0L..5L)).isEqualTo(4L..5L)
         assertThat((6L..7L).intersectRangeOrNull(0L..5L)).isNull()
     }
+
+    @Test
+    fun longRangeSubtractRange() {
+        assertThat((10L..40L).subtractRange(50L..60L)).isEqualTo(listOf(
+            10L..40L
+        ))
+        assertThat((10L..40L).subtractRange(20L..30L)).isEqualTo(listOf(
+            10L..19L, 31L..40L
+        ))
+        assertThat((10L..40L).subtractRange(10L..30L)).isEqualTo(listOf(
+            31L..40L
+        ))
+        assertThat((10L..40L).subtractRange(30L..40L)).isEqualTo(listOf(
+            10L..29L
+        ))
+
+        assertThat((10L..40L).subtractRange(40L..40L)).isEqualTo(listOf(
+            10L..39L
+        ))
+        assertThat((10L..40L).subtractRange(10L..10L)).isEqualTo(listOf(
+            11L..40L
+        ))
+        assertThat((10L..40L).subtractRange(30L..30L)).isEqualTo(listOf(
+            10L..29L, 31L..40L
+        ))
+
+        assertThat((10L..40L).subtractRange(10L..40L)).isEmpty()
+        assertThat((10L..40L).subtractRange(0L..50L)).isEmpty()
+    }
 }
+
+private fun LongRange.subtractRange(other: LongRange): List<LongRange> {
+    val intersectRangeOrNull = intersectRangeOrNull(other)
+        ?: return listOf(this)
+    if (this.length() == intersectRangeOrNull.length()) return emptyList()
+    if (intersectRangeOrNull.first > this.first && intersectRangeOrNull.last < this.last) {
+        return listOf(
+            this.first..<intersectRangeOrNull.first,
+            intersectRangeOrNull.last+1..this.last
+        )
+    } else if (this.first == intersectRangeOrNull.first) {
+        return listOf(intersectRangeOrNull.last+1..this.last)
+    } else if (this.last == intersectRangeOrNull.last) {
+        return listOf(this.first..<intersectRangeOrNull.first)
+    }
+    TODO()
+}
+
+private fun LongRange.length() = last - first + 1
 
 private fun LongRange.intersectsWith(other: LongRange): Boolean {
     val firstRange = if (first <= other.first) this else other
