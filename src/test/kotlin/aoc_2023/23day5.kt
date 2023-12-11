@@ -42,8 +42,8 @@ internal class `23day5` {
                     nonCustomRange = nonCustomRange.flatMap {
                         it.subtractRange(intersectSourceRange)
                     }
-
-                    it.second.first..(it.second.first + intersectSourceRange.length() - 1)
+                    val idx = intersectSourceRange.first - it.first.first
+                    (it.second.first+idx)..(it.second.first + idx + intersectSourceRange.length() - 1)
                 }
             }
             return nonCustomRange + customDestRanges
@@ -107,7 +107,7 @@ internal class `23day5` {
         }
     }
 
-    private fun part2Calculation(input: List<String>) {
+    private fun part2Calculation(input: List<String>): Long {
         val converted = input.convertToDataObjectList().splitByNewLine()
         println(converted)
 
@@ -135,39 +135,25 @@ internal class `23day5` {
         }
         kotlin.io.println(maps)
 
-        // cache of seed range to min location value found
-        val cache = mutableListOf<Pair<LongRange, Long>>()
-
-        val firstSeedRange = seedRanges.first()
+        var currRanges = seedRanges
         var currSource = "seed"
-        val mapOrNull = maps.firstOrNull { it.source == currSource }!!
-        val destRanges = mapOrNull.getDestRanges(firstSeedRange)
-        println(destRanges)
 
-//        val minLocation = seeds.minOf {
-//            var minLocation = Long.MAX_VALUE
-//            for (seed in it) {
-//                val cacheResult = cache.firstOrNull { seed in it.first }
-//                if (cacheResult != null) {
-//                    minLocation = min(cacheResult.second, minLocation)
-//                    continue
-//                }
-//                //                kotlin.io.println("processing seed: $seed")
-//                var currNum = seed
-//                var currSource = "seed"
-//                while (true) {
-//                    val mapOrNull = maps.firstOrNull { it.source == currSource }
-//                        ?: break
-//                    currNum = mapOrNull.get(currNum)
-//                    currSource = mapOrNull.dest
-//                }
-//                //                println(currSource, currNum)
-//                minLocation = min(currNum, minLocation)
-//            }
-//            cache.add(it to minLocation)
-//            minLocation
-//        }
-//        kotlin.io.println(minLocation)
+        while (true) {
+            println("processing source: $currSource")
+            val mapOrNull = maps.firstOrNull { it.source == currSource }
+            if (mapOrNull == null) break
+            currRanges = currRanges.flatMap {
+                mapOrNull.getDestRanges(it)
+            }
+            currSource = mapOrNull.dest
+        }
+
+        println(currSource)
+        println(currRanges)
+
+        val minLocation = currRanges.minOf { it.first }
+        println("minLocation: $minLocation")
+        return minLocation
     }
 
     @Test
@@ -193,7 +179,7 @@ internal class `23day5` {
     @Test
     fun part2Test() {
         val input = readInput(testFileName)
-        part2Calculation(input)
+        assertThat(part2Calculation(input)).isEqualTo(46)
     }
 
     @Test
@@ -205,7 +191,7 @@ internal class `23day5` {
     @Test
     fun part2() {
         val input = readInput(fileName)
-        part2Calculation(input)
+        assertThat(part2Calculation(input)).isEqualTo(10834440)
     }
 
     @Test
@@ -232,28 +218,42 @@ internal class `23day5` {
 
     @Test
     fun longRangeSubtractRange() {
-        assertThat((10L..40L).subtractRange(50L..60L)).isEqualTo(listOf(
-            10L..40L
-        ))
-        assertThat((10L..40L).subtractRange(20L..30L)).isEqualTo(listOf(
-            10L..19L, 31L..40L
-        ))
-        assertThat((10L..40L).subtractRange(10L..30L)).isEqualTo(listOf(
-            31L..40L
-        ))
-        assertThat((10L..40L).subtractRange(30L..40L)).isEqualTo(listOf(
-            10L..29L
-        ))
+        assertThat((10L..40L).subtractRange(50L..60L)).isEqualTo(
+            listOf(
+                10L..40L
+            )
+        )
+        assertThat((10L..40L).subtractRange(20L..30L)).isEqualTo(
+            listOf(
+                10L..19L, 31L..40L
+            )
+        )
+        assertThat((10L..40L).subtractRange(10L..30L)).isEqualTo(
+            listOf(
+                31L..40L
+            )
+        )
+        assertThat((10L..40L).subtractRange(30L..40L)).isEqualTo(
+            listOf(
+                10L..29L
+            )
+        )
 
-        assertThat((10L..40L).subtractRange(40L..40L)).isEqualTo(listOf(
-            10L..39L
-        ))
-        assertThat((10L..40L).subtractRange(10L..10L)).isEqualTo(listOf(
-            11L..40L
-        ))
-        assertThat((10L..40L).subtractRange(30L..30L)).isEqualTo(listOf(
-            10L..29L, 31L..40L
-        ))
+        assertThat((10L..40L).subtractRange(40L..40L)).isEqualTo(
+            listOf(
+                10L..39L
+            )
+        )
+        assertThat((10L..40L).subtractRange(10L..10L)).isEqualTo(
+            listOf(
+                11L..40L
+            )
+        )
+        assertThat((10L..40L).subtractRange(30L..30L)).isEqualTo(
+            listOf(
+                10L..29L, 31L..40L
+            )
+        )
 
         assertThat((10L..40L).subtractRange(10L..40L)).isEmpty()
         assertThat((10L..40L).subtractRange(0L..50L)).isEmpty()
@@ -267,10 +267,10 @@ private fun LongRange.subtractRange(other: LongRange): List<LongRange> {
     if (intersectRangeOrNull.first > this.first && intersectRangeOrNull.last < this.last) {
         return listOf(
             this.first..<intersectRangeOrNull.first,
-            intersectRangeOrNull.last+1..this.last
+            intersectRangeOrNull.last + 1..this.last
         )
     } else if (this.first == intersectRangeOrNull.first) {
-        return listOf(intersectRangeOrNull.last+1..this.last)
+        return listOf(intersectRangeOrNull.last + 1..this.last)
     } else if (this.last == intersectRangeOrNull.last) {
         return listOf(this.first..<intersectRangeOrNull.first)
     }
