@@ -1,7 +1,10 @@
 import com.kietyo.ktruth.assertThat
 import utils.ind
+import utils.intersectRangeOrNull
+import utils.intersectsWith
 import utils.splitByPredicate
 import utils.splitByPredicateIndexed
+import utils.subtractRange
 import kotlin.test.Test
 
 internal class UtilsTest {
@@ -28,6 +31,71 @@ internal class UtilsTest {
             6 ind ".",
             7 ind ".",
             8 ind "11"))
+    }
+
+    @Test
+    fun longIntersectsWith() {
+        assertThat((0L..5L).intersectsWith(5L..7L)).isTrue()
+        assertThat((0L..5L).intersectsWith(4L..7L)).isTrue()
+        assertThat((0L..5L).intersectsWith(6L..7L)).isFalse()
+
+        assertThat((5L..7L).intersectsWith(0L..5L)).isTrue()
+        assertThat((4L..7L).intersectsWith(0L..5L)).isTrue()
+        assertThat((6L..7L).intersectsWith(0L..5L)).isFalse()
+    }
+
+    @Test
+    fun longIntersectRangeOrNull() {
+        assertThat((0L..5L).intersectRangeOrNull(5L..7L)).isEqualTo(5L..5L)
+        assertThat((0L..5L).intersectRangeOrNull(4L..7L)).isEqualTo(4L..5L)
+        assertThat((0L..5L).intersectRangeOrNull(6L..7L)).isNull()
+
+        assertThat((5L..7L).intersectRangeOrNull(0L..5L)).isEqualTo(5L..5L)
+        assertThat((4L..7L).intersectRangeOrNull(0L..5L)).isEqualTo(4L..5L)
+        assertThat((6L..7L).intersectRangeOrNull(0L..5L)).isNull()
+    }
+
+    @Test
+    fun longRangeSubtractRange() {
+        assertThat((10L..40L).subtractRange(50L..60L)).isEqualTo(
+            listOf(
+                10L..40L
+            )
+        )
+        assertThat((10L..40L).subtractRange(20L..30L)).isEqualTo(
+            listOf(
+                10L..19L, 31L..40L
+            )
+        )
+        assertThat((10L..40L).subtractRange(10L..30L)).isEqualTo(
+            listOf(
+                31L..40L
+            )
+        )
+        assertThat((10L..40L).subtractRange(30L..40L)).isEqualTo(
+            listOf(
+                10L..29L
+            )
+        )
+
+        assertThat((10L..40L).subtractRange(40L..40L)).isEqualTo(
+            listOf(
+                10L..39L
+            )
+        )
+        assertThat((10L..40L).subtractRange(10L..10L)).isEqualTo(
+            listOf(
+                11L..40L
+            )
+        )
+        assertThat((10L..40L).subtractRange(30L..30L)).isEqualTo(
+            listOf(
+                10L..29L, 31L..40L
+            )
+        )
+
+        assertThat((10L..40L).subtractRange(10L..40L)).isEmpty()
+        assertThat((10L..40L).subtractRange(0L..50L)).isEmpty()
     }
 }
 

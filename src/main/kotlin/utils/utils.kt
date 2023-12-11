@@ -218,3 +218,37 @@ fun <E1, E2> Iterable<E1>.cross(other: Iterable<E2>, includeSameIndex: Boolean =
     }
     return cross
 }
+
+fun LongRange.subtractRange(other: LongRange): List<LongRange> {
+    val intersectRangeOrNull = intersectRangeOrNull(other)
+        ?: return listOf(this)
+    if (this.length() == intersectRangeOrNull.length()) return emptyList()
+    if (intersectRangeOrNull.first > this.first && intersectRangeOrNull.last < this.last) {
+        return listOf(
+            this.first..<intersectRangeOrNull.first,
+            intersectRangeOrNull.last + 1..this.last
+        )
+    } else if (this.first == intersectRangeOrNull.first) {
+        return listOf(intersectRangeOrNull.last + 1..this.last)
+    } else if (this.last == intersectRangeOrNull.last) {
+        return listOf(this.first..<intersectRangeOrNull.first)
+    }
+    TODO()
+}
+
+fun LongRange.length() = last - first + 1
+
+fun LongRange.intersectsWith(other: LongRange): Boolean {
+    val firstRange = if (first <= other.first) this else other
+    val secondRange = if (first <= other.first) other else this
+    return secondRange.first in firstRange
+}
+
+fun LongRange.intersectRangeOrNull(other: LongRange): LongRange? {
+    if (this.intersectsWith(other)) {
+        val firstRange = if (first <= other.first) this else other
+        val secondRange = if (first <= other.first) other else this
+        return secondRange.first..kotlin.math.min(firstRange.last, secondRange.last)
+    }
+    return null
+}

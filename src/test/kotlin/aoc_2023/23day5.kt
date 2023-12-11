@@ -1,8 +1,11 @@
 package aoc_2023
 
 import com.kietyo.ktruth.assertThat
+import utils.intersectRangeOrNull
+import utils.length
 import utils.println
 import utils.splitByNewLine
+import utils.subtractRange
 import kotlin.math.min
 import kotlin.test.Test
 
@@ -194,102 +197,6 @@ internal class `23day5` {
         assertThat(part2Calculation(input)).isEqualTo(10834440)
     }
 
-    @Test
-    fun longIntersectsWith() {
-        assertThat((0L..5L).intersectsWith(5L..7L)).isTrue()
-        assertThat((0L..5L).intersectsWith(4L..7L)).isTrue()
-        assertThat((0L..5L).intersectsWith(6L..7L)).isFalse()
 
-        assertThat((5L..7L).intersectsWith(0L..5L)).isTrue()
-        assertThat((4L..7L).intersectsWith(0L..5L)).isTrue()
-        assertThat((6L..7L).intersectsWith(0L..5L)).isFalse()
-    }
-
-    @Test
-    fun longIntersectRangeOrNull() {
-        assertThat((0L..5L).intersectRangeOrNull(5L..7L)).isEqualTo(5L..5L)
-        assertThat((0L..5L).intersectRangeOrNull(4L..7L)).isEqualTo(4L..5L)
-        assertThat((0L..5L).intersectRangeOrNull(6L..7L)).isNull()
-
-        assertThat((5L..7L).intersectRangeOrNull(0L..5L)).isEqualTo(5L..5L)
-        assertThat((4L..7L).intersectRangeOrNull(0L..5L)).isEqualTo(4L..5L)
-        assertThat((6L..7L).intersectRangeOrNull(0L..5L)).isNull()
-    }
-
-    @Test
-    fun longRangeSubtractRange() {
-        assertThat((10L..40L).subtractRange(50L..60L)).isEqualTo(
-            listOf(
-                10L..40L
-            )
-        )
-        assertThat((10L..40L).subtractRange(20L..30L)).isEqualTo(
-            listOf(
-                10L..19L, 31L..40L
-            )
-        )
-        assertThat((10L..40L).subtractRange(10L..30L)).isEqualTo(
-            listOf(
-                31L..40L
-            )
-        )
-        assertThat((10L..40L).subtractRange(30L..40L)).isEqualTo(
-            listOf(
-                10L..29L
-            )
-        )
-
-        assertThat((10L..40L).subtractRange(40L..40L)).isEqualTo(
-            listOf(
-                10L..39L
-            )
-        )
-        assertThat((10L..40L).subtractRange(10L..10L)).isEqualTo(
-            listOf(
-                11L..40L
-            )
-        )
-        assertThat((10L..40L).subtractRange(30L..30L)).isEqualTo(
-            listOf(
-                10L..29L, 31L..40L
-            )
-        )
-
-        assertThat((10L..40L).subtractRange(10L..40L)).isEmpty()
-        assertThat((10L..40L).subtractRange(0L..50L)).isEmpty()
-    }
 }
 
-private fun LongRange.subtractRange(other: LongRange): List<LongRange> {
-    val intersectRangeOrNull = intersectRangeOrNull(other)
-        ?: return listOf(this)
-    if (this.length() == intersectRangeOrNull.length()) return emptyList()
-    if (intersectRangeOrNull.first > this.first && intersectRangeOrNull.last < this.last) {
-        return listOf(
-            this.first..<intersectRangeOrNull.first,
-            intersectRangeOrNull.last + 1..this.last
-        )
-    } else if (this.first == intersectRangeOrNull.first) {
-        return listOf(intersectRangeOrNull.last + 1..this.last)
-    } else if (this.last == intersectRangeOrNull.last) {
-        return listOf(this.first..<intersectRangeOrNull.first)
-    }
-    TODO()
-}
-
-private fun LongRange.length() = last - first + 1
-
-private fun LongRange.intersectsWith(other: LongRange): Boolean {
-    val firstRange = if (first <= other.first) this else other
-    val secondRange = if (first <= other.first) other else this
-    return secondRange.first in firstRange
-}
-
-private fun LongRange.intersectRangeOrNull(other: LongRange): LongRange? {
-    if (this.intersectsWith(other)) {
-        val firstRange = if (first <= other.first) this else other
-        val secondRange = if (first <= other.first) other else this
-        return secondRange.first..min(firstRange.last, secondRange.last)
-    }
-    return null
-}
