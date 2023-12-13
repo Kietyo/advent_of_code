@@ -1,5 +1,6 @@
 package aoc_2023
 
+import com.kietyo.ktruth.assertThat
 import kotlin.test.Test
 
 internal class `23day0` {
@@ -10,37 +11,41 @@ internal class `23day0` {
         this
     }
 
-    private fun part1Calculation(input: List<String>) {
+    private fun part1Calculation(input: List<String>): Int {
         val converted = input.convertToDataObjectList()
         println(converted)
+
+        return 0
     }
 
-    private fun part2Calculation(input: List<String>) {
+    private fun part2Calculation(input: List<String>): Int {
         val converted = input.convertToDataObjectList()
         println(converted)
+
+        return 0
     }
 
     @Test
     fun part1Test() {
         val input = readInput(testFileName)
-        part1Calculation(input)
+        assertThat(part1Calculation(input)).isEqualTo(0)
     }
 
     @Test
     fun part1() {
         val input = readInput(fileName)
-        part1Calculation(input)
+        assertThat(part1Calculation(input)).isEqualTo(0)
     }
 
     @Test
     fun part2Test() {
         val input = readInput(testFileName)
-        part2Calculation(input)
+        assertThat(part2Calculation(input)).isEqualTo(0)
     }
 
     @Test
     fun part2() {
         val input = readInput(fileName)
-        part2Calculation(input)
+        assertThat(part2Calculation(input)).isEqualTo(0)
     }
 }
