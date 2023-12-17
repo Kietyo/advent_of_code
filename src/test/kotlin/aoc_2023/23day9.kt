@@ -32,6 +32,13 @@ internal class `23day9` {
             }
             return nums.last() + sumDiff
         }
+
+        fun calculatePreviousDigit(): Int {
+            val sumDiff = diffs.foldRight(0) { ls, acc ->
+                ls.first() - acc
+            }
+            return nums.first() - sumDiff
+        }
     }
 
     private fun part1Calculation(input: List<String>): Int {
@@ -44,10 +51,16 @@ internal class `23day9` {
     }
 
     private fun part2Calculation(input: List<String>): Int {
-        val converted = input.convertToDataObjectList()
+        val converted = input.convertToDataObjectList().map {
+            Calculator(it.split(" ").map { it.toInt() })
+        }
         println(converted)
 
-        return 0
+        val calc = converted.map { it.calculatePreviousDigit() }
+
+        println(calc)
+
+        return calc.sum()
     }
 
     @Test
@@ -65,12 +78,12 @@ internal class `23day9` {
     @Test
     fun part2Test() {
         val input = readInput(testFileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(2)
     }
 
     @Test
     fun part2() {
         val input = readInput(fileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(973)
     }
 }
