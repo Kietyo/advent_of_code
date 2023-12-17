@@ -89,22 +89,22 @@ class `20UtilsTest` {
         assertThat(grid.getStrideFrom(0, 0, Direction.UP_LEFT)).isEmpty()
         assertThat(grid.getStrideFrom(0, 0, Direction.UP_RIGHT)).isEmpty()
         assertThat(grid.getStrideFrom(0, 0, Direction.RIGHT)).isEqualTo(listOf(
-            PointWithData(2, 1, 0),
-            PointWithData(3, 2, 0),
-            PointWithData(4, 3, 0),
-            PointWithData(5, 4, 0),
+            PointWithData(2, 1, 0, Direction.RIGHT),
+            PointWithData(3, 2, 0, Direction.RIGHT),
+            PointWithData(4, 3, 0, Direction.RIGHT),
+            PointWithData(5, 4, 0, Direction.RIGHT),
         ))
         assertThat(grid.getStrideFrom(0, 0, Direction.DOWN_RIGHT)).isEqualTo(listOf(
-            PointWithData(7, 1, 1),
-            PointWithData(13, 2, 2),
-            PointWithData(19, 3, 3),
-            PointWithData(25, 4, 4),
+            PointWithData(7, 1, 1, Direction.DOWN_RIGHT),
+            PointWithData(13, 2, 2, Direction.DOWN_RIGHT),
+            PointWithData(19, 3, 3, Direction.DOWN_RIGHT),
+            PointWithData(25, 4, 4, Direction.DOWN_RIGHT),
         ))
         assertThat(grid.getStrideFrom(0, 0, Direction.DOWN)).isEqualTo(listOf(
-            PointWithData(6, 0, 1),
-            PointWithData(11, 0, 2),
-            PointWithData(16, 0, 3),
-            PointWithData(21, 0, 4),
+            PointWithData(6, 0, 1, Direction.DOWN),
+            PointWithData(11, 0, 2, Direction.DOWN),
+            PointWithData(16, 0, 3, Direction.DOWN),
+            PointWithData(21, 0, 4, Direction.DOWN),
         ))
     }
 

@@ -16,6 +16,13 @@ fun String.splitByPredicate(predicate: (Char) -> Boolean) = splitByPredicateInde
     it.value
 }
 
+fun <E> MutableList<E>.addIfNotNull(e: E?) {
+    if (e != null) {
+        add(e)
+    }
+}
+
+
 fun String.splitByPredicateIndexed(predicate: (Char) -> Boolean): List<IndexedValue<String>> {
     val splitData = mutableListOf<IndexedValue<String>>()
 

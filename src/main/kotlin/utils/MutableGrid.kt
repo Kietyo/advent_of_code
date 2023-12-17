@@ -12,7 +12,10 @@ public interface Grid<T> {
 
 data class PointWithData<T>(
     val data: T, override val x: Int, override val y: Int,
-): IntPoint
+    val relativeDirection: Direction
+): IntPoint {
+    fun toIntPoint() = MutableIntPoint(x, y)
+}
 
 class MutableGrid<T : Any>(
     val data: List<Array<T>>
@@ -54,7 +57,7 @@ class MutableGrid<T : Any>(
             if (data == null) {
                 break
             } else {
-                datas.add(PointWithData(data, newX, newY))
+                datas.add(PointWithData(data, newX, newY, direction))
             }
             i++
         }
@@ -109,22 +112,25 @@ class MutableGrid<T : Any>(
         return allPoints
     }
 
-    private fun getAdjacentInternal(x: Int, y: Int): PointWithData<T>? {
+    private fun getAdjacentInternal(x: Int, y: Int, direction: Direction): PointWithData<T>? {
         val data = getOrNull(x, y) ?: return null
-        return PointWithData(data, x, y)
+        return PointWithData(data, x, y, direction)
     }
 
-    fun getAdjacents(x: Int, y: Int): List<PointWithData<T>> {
-        return listOfNotNull(
-            getAdjacentInternal(x - 1, y),
-            getAdjacentInternal(x + 1, y),
-            getAdjacentInternal(x, y - 1),
-            getAdjacentInternal(x, y + 1),
-            getAdjacentInternal(x - 1, y - 1),
-            getAdjacentInternal(x - 1, y + 1),
-            getAdjacentInternal(x + 1, y - 1),
-            getAdjacentInternal(x + 1, y + 1),
-        )
+    fun getAdjacents(x: Int, y: Int, includeDiagonals: Boolean = false): List<PointWithData<T>> {
+        return buildList {
+            addIfNotNull(getAdjacentInternal(x - 1, y, Direction.LEFT))
+            addIfNotNull(getAdjacentInternal(x + 1, y, Direction.RIGHT))
+            addIfNotNull(getAdjacentInternal(x, y - 1, Direction.UP))
+            addIfNotNull(getAdjacentInternal(x, y + 1, Direction.DOWN))
+            if (includeDiagonals) {
+                addIfNotNull(getAdjacentInternal(x - 1, y - 1, Direction.UP_LEFT))
+                addIfNotNull(getAdjacentInternal(x - 1, y + 1, Direction.DOWN_LEFT))
+                addIfNotNull(getAdjacentInternal(x + 1, y - 1, Direction.UP_RIGHT))
+                addIfNotNull(getAdjacentInternal(x + 1, y + 1, Direction.DOWN_RIGHT))
+            }
+
+        }
     }
 
     fun forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
@@ -272,3 +278,4 @@ class MutableGrid<T : Any>(
         return elements
     }
 }
+
