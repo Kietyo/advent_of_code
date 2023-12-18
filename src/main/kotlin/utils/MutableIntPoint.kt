@@ -12,6 +12,17 @@ interface IntPoint {
     fun clone(): MutableIntPoint {
         return MutableIntPoint(x, y)
     }
+
+    fun directionTo(other: IntPoint): Direction {
+        require((abs(x - other.x) == 1) xor (abs(y - other.y) == 1))
+        return when {
+            other.x - x == 1 -> Direction.RIGHT
+            other.x - x == -1 -> Direction.LEFT
+            other.y - y == 1 -> Direction.DOWN
+            other.y - y == -1 -> Direction.UP
+            else -> TODO()
+        }
+    }
 }
 
 data class MutableIntPoint(

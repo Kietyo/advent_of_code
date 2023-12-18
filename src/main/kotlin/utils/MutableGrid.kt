@@ -89,6 +89,8 @@ class MutableGrid<T : Any>(
         return data[y]
     }
 
+
+
     fun getOrNull(x: Int, y: Int): T? {
         return data.getOrNull(y)?.getOrNull(x)
     }
@@ -117,7 +119,7 @@ class MutableGrid<T : Any>(
         return PointWithData(data, x, y, direction)
     }
 
-    fun getAdjacents(x: Int, y: Int, includeDiagonals: Boolean = false): List<PointWithData<T>> {
+    fun getAdjacents(x: Int, y: Int, includeDiagonals: Boolean = true): List<PointWithData<T>> {
         return buildList {
             addIfNotNull(getAdjacentInternal(x - 1, y, Direction.LEFT))
             addIfNotNull(getAdjacentInternal(x + 1, y, Direction.RIGHT))
@@ -131,6 +133,13 @@ class MutableGrid<T : Any>(
             }
 
         }
+    }
+
+    fun isNearWall(x: Int, y: Int): Boolean {
+        return getOrNull(x - 1, y) == null ||
+            getOrNull(x + 1, y) == null ||
+            getOrNull(x, y - 1) == null ||
+            getOrNull(x, y + 1) == null
     }
 
     fun forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
