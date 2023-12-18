@@ -259,3 +259,23 @@ fun LongRange.intersectRangeOrNull(other: LongRange): LongRange? {
     }
     return null
 }
+
+fun calculateLeastCommonMultiple(nums: List<Int>): Long {
+    require(nums.isNotEmpty())
+    if (nums.size == 1) return nums.first().toLong()
+    var currSum = nums.min().toLong()
+    var curr = nums.min().toLong()
+    var numMatching = 1
+    while (true) {
+        currSum += curr
+        val countMultiples = nums.count { currSum % it == 0L }
+        if (countMultiples == nums.size) {
+            break
+        }
+        if (countMultiples > numMatching) {
+            numMatching = countMultiples
+            curr = currSum
+        }
+    }
+    return currSum
+}

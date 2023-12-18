@@ -258,9 +258,7 @@ internal class `23day10` {
             false
         }
 
-        println(containedPoints.count())
-
-        return 0
+        return containedPoints.count()
     }
 
     @Test
@@ -284,31 +282,31 @@ internal class `23day10` {
     @Test
     fun part2Test3() {
         val input = readInput("day10_test3")
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(4)
     }
 
     @Test
     fun part2Test4() {
         val input = readInput("day10_test4")
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(4)
     }
 
     @Test
     fun part2Test5() {
         val input = readInput("day10_test5")
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(8)
     }
 
     @Test
     fun part2Test6() {
         val input = readInput("day10_test6")
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(10)
     }
 
     @Test
     fun part2() {
         val input = readInput(fileName)
         // 64, not right
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(563)
     }
 }

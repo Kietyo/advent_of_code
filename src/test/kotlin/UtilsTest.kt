@@ -97,5 +97,18 @@ internal class UtilsTest {
         assertThat((10L..40L).subtractRange(10L..40L)).isEmpty()
         assertThat((10L..40L).subtractRange(0L..50L)).isEmpty()
     }
+
+    @Test
+    fun calculateLeastCommonMultiple() {
+        assertThat(utils.calculateLeastCommonMultiple(
+            listOf(6)
+        )).isEqualTo(6L)
+        assertThat(utils.calculateLeastCommonMultiple(
+            listOf(6, 8)
+        )).isEqualTo(24L)
+        assertThat(utils.calculateLeastCommonMultiple(
+            listOf(16043, 20777, 13939, 18673, 11309, 17621)
+        )).isEqualTo(13740108158591L)
+    }
 }
 
