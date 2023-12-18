@@ -57,10 +57,7 @@ internal class `23day10` {
                     Direction.LEFT -> it.data in listOf('-', 'L', 'F')
                     Direction.DOWN -> it.data in listOf('|', 'L', 'J')
                     Direction.UP -> it.data in listOf('|', '7', 'F')
-                    Direction.UP_LEFT -> TODO()
-                    Direction.UP_RIGHT -> TODO()
-                    Direction.DOWN_LEFT -> TODO()
-                    Direction.DOWN_RIGHT -> TODO()
+                    else -> TODO()
                 }
             }
         }
@@ -68,6 +65,7 @@ internal class `23day10` {
         val stepsFromStart = mutableMapOf<MutableIntPoint, Int>()
         stepsFromStart[start] = 0
 
+        // Go clockwise
         while (true) {
             val prevPointSteps = stepsFromStart[currPoint]!!
             val prevPipe = grid.get(currPoint)
@@ -79,6 +77,7 @@ internal class `23day10` {
         }
 
         currPoint = start
+        // Go counter clockwise
         while (true) {
             val prevPointSteps = stepsFromStart[currPoint]!!
             val prevPipe = grid.get(currPoint)
@@ -89,8 +88,6 @@ internal class `23day10` {
                 minOf(prevPointSteps + 1, stepsFromStart[currPoint]!!)
             visitedPoints2.add(MutableIntPoint(currPoint.x, currPoint.y))
         }
-
-        println(visitedPoints1)
 
         val res = stepsFromStart.maxOf {
             it.value
@@ -206,6 +203,7 @@ internal class `23day10` {
             }
         }
 
+        // Fill gaps of expanded grid
         wideGrid.forEach { x, y, value, isFirstElementInNewRow ->
             if (wideGrid.getOrNull(x - 1, y) in setOf('F', '-', 'L') && wideGrid.getOrNull(x + 1, y) in setOf('-', '7', 'J')) {
                 wideGrid[x, y] = '-'
