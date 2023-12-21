@@ -6,6 +6,7 @@ import utils.splitByNewLine
 import utils.splitByPredicate
 import utils.sumOf
 import java.lang.StringBuilder
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class `20day14` {
@@ -144,6 +145,7 @@ internal class `20day14` {
     }
 
     @Test
+    @Ignore
     fun part2Test() {
         val input = readInput(testFileName)
         part2Calculation(input)

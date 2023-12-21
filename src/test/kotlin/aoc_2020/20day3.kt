@@ -17,7 +17,7 @@ internal class `20day3` {
         var numTrees = 0
         while (true) {
             val newY = i * downNum
-            if (newY >= maxRows) {
+            if (newY >= numRows) {
                 break
             }
             val e = getCyclic(i * rightNum, newY)

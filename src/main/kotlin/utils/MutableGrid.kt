@@ -3,12 +3,7 @@ package utils
 import java.util.*
 import kotlin.Comparator
 
-public interface Grid<T> {
-    operator fun get(point: MutableIntPoint): T
-    operator fun get(x: Int, y: Int): T
-    fun getOrDefault(x: Int, y: Int, default: () -> T): T
-    fun getOrDefault(point: IntPoint, default: () -> T): T
-}
+
 
 data class PointWithData<T>(
     val data: T, override val x: Int, override val y: Int,
@@ -20,11 +15,11 @@ data class PointWithData<T>(
 class MutableGrid<T : Any>(
     val data: List<Array<T>>
 ): Grid<T> {
-    val maxRows = data.size
-    val maxColumns = data.maxOf { it.size }
+    override val numRows = data.size
+    override val numColumns = data.maxOf { it.size }
 
     init {
-        println("maxRows: $maxRows, maxColumns: $maxColumns")
+        println("numRows: $numRows, numColumns: $numColumns")
     }
 
     override fun toString(): String {
@@ -74,22 +69,20 @@ class MutableGrid<T : Any>(
     }
 
     fun getCyclic(x: Int, y: Int): T {
-        val yNormalize = normalizeIndex(y, maxRows)
-        val xNormalize = normalizeIndex(x, maxColumns)
+        val yNormalize = normalizeIndex(y, numRows)
+        val xNormalize = normalizeIndex(x, numColumns)
         return get(xNormalize, yNormalize)
     }
     fun getCyclicOrDefault(x: Int, y: Int, default: () -> T): T {
-        val yNormalize = normalizeIndex(y, maxRows)
-        val xNormalize = normalizeIndex(x, maxColumns)
+        val yNormalize = normalizeIndex(y, numRows)
+        val xNormalize = normalizeIndex(x, numColumns)
         return getOrDefault(xNormalize, yNormalize, default)
     }
 
     fun getRow(y: Int): Array<T> {
-        require(y in 0 until maxRows)
+        require(y in 0 until numRows)
         return data[y]
     }
-
-
 
     fun getOrNull(x: Int, y: Int): T? {
         return data.getOrNull(y)?.getOrNull(x)
@@ -142,15 +135,7 @@ class MutableGrid<T : Any>(
             getOrNull(x, y + 1) == null
     }
 
-    fun forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
-        data.forEachIndexed { y, chars ->
-            var isFirst = true
-            chars.forEachIndexed { x, v ->
-                fn(x, y, v, isFirst)
-                isFirst = false
-            }
-        }
-    }
+
 
     fun copy() = MutableGrid(data.map { it.clone() })
 
@@ -222,6 +207,16 @@ class MutableGrid<T : Any>(
         return DijkstraResult(
             source, pointToMinLengthFromSource, pointToPrev
         )
+    }
+
+    override fun forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
+        data.forEachIndexed { y, chars ->
+            var isFirst = true
+            chars.forEachIndexed { x, v ->
+                fn(x, y, v, isFirst)
+                isFirst = false
+            }
+        }
     }
 
     fun bfs(source: MutableIntPoint, nextStatesFn: MutableGrid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {

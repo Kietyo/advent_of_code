@@ -215,7 +215,7 @@ data class CubeGrid(
     val grid: MutableGrid<Char>,
     val rotationList: List<SideRotationTranslation>,
     val createRegionFn: (Int) -> List<Region>,
-    val cubeLength: Int = grid.maxRows / 3
+    val cubeLength: Int = grid.numRows / 3
 ) {
 
     val regions: List<Region> = createRegionFn(cubeLength)
@@ -251,8 +251,8 @@ data class CubeGrid(
         if (currRegion.isPointInRegion(newPoint)) {
             val c = grid.getCyclicOrDefault(newPoint.x, newPoint.y) { ' ' }
             if (c == '.') {
-                newPoint.x = normalizeIndex(newPoint.x, grid.maxColumns)
-                newPoint.y = normalizeIndex(newPoint.y, grid.maxRows)
+                newPoint.x = normalizeIndex(newPoint.x, grid.numColumns)
+                newPoint.y = normalizeIndex(newPoint.y, grid.numRows)
                 return newPoint to direction
             }
             if (c == '#') return currPoint to direction
@@ -278,8 +278,8 @@ data class CubeGrid(
 
             val c = grid.getCyclicOrDefault(finalPoint.x, finalPoint.y) { ' ' }
             if (c == '.') {
-                finalPoint.x = normalizeIndex(finalPoint.x, grid.maxColumns)
-                finalPoint.y = normalizeIndex(finalPoint.y, grid.maxRows)
+                finalPoint.x = normalizeIndex(finalPoint.x, grid.numColumns)
+                finalPoint.y = normalizeIndex(finalPoint.y, grid.numRows)
                 return finalPoint to finaldirection
             }
             if (c == '#') return currPoint to direction
@@ -304,8 +304,8 @@ fun MutableGrid<Char>.getNextPoint(
             ' '
         }
         if (c == '.') {
-            clone.x = normalizeIndex(clone.x, maxColumns)
-            clone.y = normalizeIndex(clone.y, maxRows)
+            clone.x = normalizeIndex(clone.x, numColumns)
+            clone.y = normalizeIndex(clone.y, numRows)
             return clone
         }
         if (c == '#') return currPoint

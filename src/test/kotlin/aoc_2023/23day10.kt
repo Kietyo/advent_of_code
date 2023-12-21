@@ -192,8 +192,8 @@ internal class `23day10` {
         }
 
         val wideGrid = MutableGrid(buildList {
-            repeat(grid.maxRows * 2) {
-                add(Array(grid.maxColumns * 2) {'.'})
+            repeat(grid.numRows * 2) {
+                add(Array(grid.numColumns * 2) {'.'})
             }
         })
 

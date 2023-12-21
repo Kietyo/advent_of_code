@@ -193,17 +193,17 @@ fun main() {
             )
         }
 
-        val endPosition = grid.maxColumns - 2 toip grid.maxRows - 1
+        val endPosition = grid.numColumns - 2 toip grid.numRows - 1
 
-        val blizzardXRange = 1..grid.maxColumns - 2
-        val blizzardYRange = 1..grid.maxRows - 2
+        val blizzardXRange = 1..grid.numColumns - 2
+        val blizzardYRange = 1..grid.numRows - 2
 
         println("blizzardXRange: $blizzardXRange")
         println("blizzardYRange: $blizzardYRange")
 
         val context = OptimizationContext(
-            grid.maxColumns,
-            grid.maxRows,
+            grid.numColumns,
+            grid.numRows,
             walls,
             blizzards,
             blizzardXRange, blizzardYRange
