@@ -14,7 +14,97 @@ internal class `23day12` {
 
     class Calculator(val arrangement: List<Int>) {
         val sumDamage = arrangement.sum()
+        val remainingSumDamagePerIndex = buildList<Int> {
+            arrangement.reduceRight { it1, it2 ->
+                val sum = it1+it2
+                add(sum)
+                sum
+            }
+
+            reverse()
+            add(arrangement.first())
+        }
+
+        init {
+            println("arrangement: $arrangement")
+            println("remainingSumDamagePerIndex: $remainingSumDamagePerIndex")
+        }
+
         fun calculate(curr: String): Int {
+            return calculateInternal(arrangement, curr)
+        }
+
+        fun calculateInternal(currArrangement: List<Int>, curr: String): Int {
+            val idxOfFirstUnknown = curr.indexOf('?')
+            if (idxOfFirstUnknown == -1) {
+                if (curr.split(".").filter { it.isNotEmpty() }.map { it.count() } == currArrangement) {
+                    return 1
+                } else {
+                    return 0
+                }
+            }
+
+            println("here")
+
+            return 0
+        }
+
+        fun calculate2(curr: String): Int {
+            val currArr = curr.toCharArray()
+            return calculateInternal2(currArr, 0, 0, 0)
+        }
+
+        fun calculateInternal2(curr: CharArray, currIdx: Int, currArrangementIdx: Int, currDamage: Int): Int {
+            if (currDamage > 0 && currArrangementIdx >= arrangement.size) {
+                return 0
+            }
+            if (currIdx == curr.size) {
+                if (currDamage > 0) {
+                    if (currArrangementIdx >= arrangement.size) {
+                        return 0
+                    }
+                    if (arrangement[currArrangementIdx] != currDamage) {
+                        return 0
+                    }
+                    if (arrangement[currArrangementIdx] == currDamage && currArrangementIdx == arrangement.size-1) {
+                        return 1
+                    }
+                }
+                if (currDamage == 0 && currArrangementIdx == arrangement.size) {
+                    return 1
+                }
+                if (currDamage == 0 && currArrangementIdx < arrangement.size) {
+                    return 0
+                }
+                if (currDamage > 0 && currArrangementIdx < arrangement.size) {
+                    return 0
+                }
+                println("see here")
+            }
+
+            if (curr[currIdx] == '.') {
+                if (currDamage == 0) {
+                    return calculateInternal2(curr, currIdx+1, currArrangementIdx, currDamage)
+                } else {
+                    if (currDamage == arrangement[currArrangementIdx]) {
+                        return calculateInternal2(curr, currIdx+1, currArrangementIdx+1, 0)
+                    } else {
+                        return 0
+                    }
+                }
+            } else if (curr[currIdx] == '#') {
+                return calculateInternal2(curr, currIdx+1, currArrangementIdx, currDamage+1)
+            } else {
+                curr[currIdx] = '.'
+                val sum1 = calculateInternal2(curr, currIdx, currArrangementIdx, currDamage)
+                curr[currIdx] = '#'
+                val sum2 = calculateInternal2(curr, currIdx, currArrangementIdx, currDamage)
+                curr[currIdx] = '?'
+                return sum1 + sum2
+            }
+
+        }
+        fun calculateOld(curr: String): Int {
             val countUnknownSpots = curr.count { it == '?' }
             val countDamagedSpots = curr.count { it == '#' }
             if ((countUnknownSpots + countDamagedSpots) < sumDamage) {
