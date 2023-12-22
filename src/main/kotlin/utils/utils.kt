@@ -279,3 +279,9 @@ fun calculateLeastCommonMultiple(nums: List<Int>): Long {
     }
     return currSum
 }
+
+fun <E> List<E>.repeat(i: Int): List<E> = buildList {
+    repeat(i) {
+        addAll(this@repeat)
+    }
+}
