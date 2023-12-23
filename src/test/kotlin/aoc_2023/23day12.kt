@@ -12,28 +12,32 @@ internal class `23day12` {
         this
     }
 
-    fun calculateCurrentArrangement(s: String): List<Int> {
-        require(!s.contains("?"))
-        val currArrangement = mutableListOf<Int>()
-        var currNumDmg = 0
-        for ((i, c) in s.withIndex()) {
-            if (c == '#') {
-                currNumDmg++
-                if (i == s.lastIndex) {
-                    currArrangement.add(currNumDmg)
-                    currNumDmg = 0
-                }
-            } else {
-                if (currNumDmg > 0) {
-                    currArrangement.add(currNumDmg)
-                    currNumDmg = 0
+    companion object {
+        fun calculateCurrentArrangement(s: String): List<Int> {
+            require(!s.contains("?"))
+            val currArrangement = mutableListOf<Int>()
+            var currNumDmg = 0
+            for ((i, c) in s.withIndex()) {
+                if (c == '#') {
+                    currNumDmg++
+                    if (i == s.lastIndex) {
+                        currArrangement.add(currNumDmg)
+                        currNumDmg = 0
+                    }
+                } else {
+                    if (currNumDmg > 0) {
+                        currArrangement.add(currNumDmg)
+                        currNumDmg = 0
+                    }
                 }
             }
+            return currArrangement
         }
-        return currArrangement
     }
 
-    class Calculator(val arrangement: List<Int>) {
+
+
+    internal class Calculator(val arrangement: List<Int>) {
         val sumDamage = arrangement.sum()
         val remainingSumDamagePerIndex = buildList<Int> {
             arrangement.reduceRight { it1, it2 ->
@@ -53,22 +57,26 @@ internal class `23day12` {
 
         data class Item(val arr: List<Int>, val s: String)
 
-        val memo = mutableMapOf<Item, Int>()
+        val memo = mutableMapOf<Item, Long>()
 
-        fun calculate(curr: String): Int {
+        fun calculatePublic(curr: String): Long {
             return calculateInternal(Item(arrangement, curr))
         }
 
+        fun calculate(curr: Item): Long {
+            if (memo.containsKey(curr)) return memo[curr]!!
+            val res = calculateInternal(curr)
+            memo[curr] = res
+            return res
+        }
 
-
-        fun calculateInternal(curr: Item): Int {
+        fun calculateInternal(curr: Item): Long {
             val currArrangement = mutableListOf<Int>()
             var currNumDmg = 0
             var containsUnknown = false
             var lastIWithDot = -1
             var lastI = 0
             for ((i, c) in curr.s.withIndex()) {
-                lastI = i
                 if (c == '?') {
                     containsUnknown = true
                     break
@@ -85,12 +93,30 @@ internal class `23day12` {
                         currNumDmg = 0
                     }
                 }
+                lastI++
+            }
+
+            if (currArrangement.isEmpty() && currNumDmg > 0) {
+                if (curr.arr.isEmpty()) {
+                    return 0
+                }
+                if (currNumDmg > curr.arr.first()) {
+                    return 0
+                }
             }
 
             if (lastIWithDot != -1) {
                 val firstHalf = curr.s.substring(0..<lastIWithDot)
-                val secondHalf = curr.s.substring(lastIWithDot..<curr.s.length)
-                println("here, firstHalf: $firstHalf, secondHalf: $secondHalf")
+                if (firstHalf.isNotEmpty()) {
+                    val secondHalf = curr.s.substring(lastIWithDot..<curr.s.length)
+                    val firstHalfArr = calculateCurrentArrangement(firstHalf)
+                    val expectedArrangement = curr.arr.take(firstHalfArr.size)
+                    if (firstHalfArr == expectedArrangement) {
+                        return calculate(Item(curr.arr.drop(firstHalfArr.size), secondHalf))
+                    } else {
+                        return 0
+                    }
+                }
             }
 
             if (currArrangement.isNotEmpty()) {
@@ -111,7 +137,7 @@ internal class `23day12` {
                 }
             }
 
-            if (lastI == curr.s.lastIndex) {
+            if (lastI == curr.s.length) {
                 if (currArrangement == curr.arr) {
                     return 1
                 } else {
@@ -119,180 +145,14 @@ internal class `23day12` {
                 }
             }
 
-            val res  = calculateInternal(Item(curr.arr, curr.s.replaceFirst('?', '#'))) +
-                    calculateInternal(Item(curr.arr, curr.s.replaceFirst('?', '.')))
-            return res
+            return calculate(Item(curr.arr, curr.s.replaceFirst('?', '#'))) +
+                    calculate(Item(curr.arr, curr.s.replaceFirst('?', '.')))
         }
 
-        fun calculateInternalOld(curr: Item): Int {
-            if (curr in memo) return memo[curr]!!
-            val idxOfFirstUnknown = curr.s.indexOf('?')
-            if (idxOfFirstUnknown == -1) {
-                if (curr.s.split(".").filter { it.isNotEmpty() }.map { it.count() } == curr.arr) {
-                    memo[curr] = 1
-                    return 1
-                } else {
-                    memo[curr] = 0
-                    return 0
-                }
-            }
 
-            val firstHalf = curr.s.substring(0..<idxOfFirstUnknown)
-            val arr = firstHalf.split(".").filter { it.isNotEmpty() }.map { it.count() }
-
-            if (firstHalf.isNotEmpty() && firstHalf.contains("#")) {
-                if (firstHalf.endsWith(".")) {
-                    val expectToMatch = curr.arr.take(arr.size)
-                    if (arr != expectToMatch) {
-                        return 0
-                    }
-                } else {
-                    if (arr.dropLast(1) != curr.arr.take(arr.size - 1)) {
-                        return 0
-                    }
-
-                    println("curr: $curr")
-                    if (arr.last() > curr.arr[arr.size-1]) {
-                        return 0
-                    }
-                }
-
-            }
-            val secondHalf = curr.s.substring(idxOfFirstUnknown..<curr.s.length)
-
-
-            if (firstHalf.isNotEmpty() && firstHalf.last() == '.') {
-                println("curr: $curr, firstHalf: $firstHalf, secondHalf: $secondHalf")
-
-                if (!firstHalf.contains('?')) {
-                    val remainingArrangements = curr.arr.subList(arr.size, curr.arr.size)
-                    val res = calculateInternal(Item(remainingArrangements, secondHalf))
-                    memo[curr] = res
-                    return res
-                }
-            }
-
-            val res = calculateInternal(Item(curr.arr, curr.s.replaceFirst('?', '.'))) + calculateInternal(Item(curr.arr, curr.s.replaceFirst('?', '#')))
-            memo[curr] = res
-            return res
-        }
-
-        fun calculate2(curr: String): Int {
-            val currArr = curr.toCharArray()
-            return calculateInternal2(currArr, 0, 0, 0)
-        }
-
-        fun calculateInternal2(curr: CharArray, currIdx: Int, currArrangementIdx: Int, currDamage: Int): Int {
-            if (currDamage > 0 && currArrangementIdx >= arrangement.size) {
-                return 0
-            }
-            if (currIdx == curr.size) {
-                if (currDamage > 0) {
-                    if (currArrangementIdx >= arrangement.size) {
-                        return 0
-                    }
-                    if (arrangement[currArrangementIdx] != currDamage) {
-                        return 0
-                    }
-                    if (arrangement[currArrangementIdx] == currDamage && currArrangementIdx == arrangement.size-1) {
-                        return 1
-                    }
-                }
-                if (currDamage == 0 && currArrangementIdx == arrangement.size) {
-                    return 1
-                }
-                if (currDamage == 0 && currArrangementIdx < arrangement.size) {
-                    return 0
-                }
-                if (currDamage > 0 && currArrangementIdx < arrangement.size) {
-                    return 0
-                }
-                println("see here")
-            }
-
-            if (curr[currIdx] == '.') {
-                if (currDamage == 0) {
-                    return calculateInternal2(curr, currIdx+1, currArrangementIdx, currDamage)
-                } else {
-                    if (currDamage == arrangement[currArrangementIdx]) {
-                        return calculateInternal2(curr, currIdx+1, currArrangementIdx+1, 0)
-                    } else {
-                        return 0
-                    }
-                }
-            } else if (curr[currIdx] == '#') {
-                return calculateInternal2(curr, currIdx+1, currArrangementIdx, currDamage+1)
-            } else {
-                curr[currIdx] = '.'
-                val sum1 = calculateInternal2(curr, currIdx, currArrangementIdx, currDamage)
-                curr[currIdx] = '#'
-                val sum2 = calculateInternal2(curr, currIdx, currArrangementIdx, currDamage)
-                curr[currIdx] = '?'
-                return sum1 + sum2
-            }
-
-        }
-        fun calculateOld(curr: String): Int {
-            val countUnknownSpots = curr.count { it == '?' }
-            val countDamagedSpots = curr.count { it == '#' }
-            if ((countUnknownSpots + countDamagedSpots) < sumDamage) {
-                return 0
-            }
-            if (countDamagedSpots > sumDamage) {
-                return 0
-            }
-            //            if (countUnknownSpots == 0) {
-            //                println(curr)
-            //            }
-            //            println(curr)
-            var arrangementIdx = 0
-            var arrangementNum = arrangement.first()
-            var currAcc = 0
-            var fullyMatching = true
-            var i = 0
-            while (i < curr.length) {
-                if (curr[i] == '?') {
-                    // Still processing, break
-                    fullyMatching = false
-                    break
-                } else if (curr[i] == '.') {
-                    if (currAcc > 0) {
-                        if (currAcc == arrangementNum) {
-                            arrangementIdx++
-                            arrangementNum = arrangement.getOrElse(arrangementIdx) { 0 }
-                            currAcc = 0
-                        } else {
-                            return 0
-                        }
-                    }
-                } else {
-                    require(curr[i] == '#')
-                    currAcc++
-                }
-                i++
-            }
-
-            if (currAcc > 0 && countUnknownSpots == 0) {
-                if (currAcc == arrangementNum) {
-                    arrangementIdx++
-                } else {
-                    return 0
-                }
-            }
-
-            if (fullyMatching && arrangementIdx == arrangement.size) {
-                return 1
-            }
-
-            if (i == curr.length && countUnknownSpots == 0) {
-                return 0
-            }
-
-            return calculate(curr.replaceFirst('?', '.')) + calculate(curr.replaceFirst('?', '#'))
-        }
     }
 
-    private fun part1Calculation(input: List<String>): Int {
+    private fun part1Calculation(input: List<String>): Long {
         val converted = input.convertToDataObjectList()
         println(converted)
 
@@ -306,7 +166,7 @@ internal class `23day12` {
         val calcs = pairs.map {
             println("Processing $it")
             val calc = Calculator(it.second)
-            calc.calculate2(it.first)
+            calc.calculatePublic(it.first)
         }
 
         println(calcs)
@@ -315,7 +175,7 @@ internal class `23day12` {
         return calcs.sum()
     }
 
-    private fun part2Calculation(input: List<String>): Int {
+    private fun part2Calculation(input: List<String>): Long {
         val converted = input.convertToDataObjectList()
         println(converted)
 
@@ -331,7 +191,7 @@ internal class `23day12` {
             println("i: $i, Processing $it")
             i++
             val calc = Calculator(it.second)
-            calc.calculate(it.first)
+            calc.calculatePublic(it.first).toLong()
         }
 
         println(calcs)
@@ -368,37 +228,31 @@ internal class `23day12` {
     @Test
     fun calc1() {
         val calc = Calculator(listOf(1, 1, 3))
-        assertThat(calc.calculate("???.###")).isEqualTo(1)
+        assertThat(calc.calculatePublic("???.###")).isEqualTo(1)
     }
 
     @Test
     fun calc2() {
         val calc = Calculator(listOf(1, 1, 3))
-        assertThat(calc.calculate(".??..??...?##.")).isEqualTo(4)
+        assertThat(calc.calculatePublic(".??..??...?##.")).isEqualTo(4)
     }
 
     @Test
     fun calc3() {
         val calc = Calculator(listOf(1, 1, 3))
-        assertThat(calc.calculate("..#...#...###.")).isEqualTo(1)
+        assertThat(calc.calculatePublic("..#...#...###.")).isEqualTo(1)
     }
 
     @Test
     fun calc4() {
         val calc = Calculator(listOf(3, 2, 1))
-        assertThat(calc.calculate("?###????????")).isEqualTo(10)
+        assertThat(calc.calculatePublic("?###????????")).isEqualTo(10)
     }
 
     @Test
     fun calc5() {
         val calc = Calculator(listOf(1,2,2))
-        assertThat(calc.calculate("?.????????#???")).isEqualTo(34)
-    }
-
-    @Test
-    fun calc6() {
-        val calc = Calculator(listOf(1, 3, 1, 6, 1, 3, 1, 6, 1, 3, 1, 6, 1, 3, 1, 6, 1, 3, 1, 6))
-        assertThat(calc.calculate("?#?#?#?#?#?#?#??#?#?#?#?#?#?#??#?#?#?#?#?#?#??#?#?#?#?#?#?#??#?#?#?#?#?#?#?")).isEqualTo(34)
+        assertThat(calc.calculatePublic("?.????????#???")).isEqualTo(34)
     }
 
     @Test
@@ -420,16 +274,17 @@ internal class `23day12` {
 
     }
 
-//    @Test
-//    fun part2Test() {
-//        val input = readInput(testFileName)
-//        assertThat(part2Calculation(input)).isEqualTo(525152)
-//    }
+    @Test
+    fun part2Test() {
+        val input = readInput(testFileName)
+        assertThat(part2Calculation(input)).isEqualTo(525152)
+    }
 //
-//    @Test
-//    fun part2() {
-//        val input = readInput(fileName)
-//        assertThat(part2Calculation(input)).isEqualTo(0)
-//    }
+    @Test
+    fun part2() {
+        val input = readInput(fileName)
+    // 15464163264, too low
+        assertThat(part2Calculation(input)).isEqualTo(0)
+    }
 }
 
