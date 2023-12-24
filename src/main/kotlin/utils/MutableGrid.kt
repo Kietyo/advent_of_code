@@ -79,11 +79,6 @@ class MutableGrid<T : Any>(
         return getOrDefault(xNormalize, yNormalize, default)
     }
 
-    fun getRow(y: Int): Array<T> {
-        require(y in 0 until numRows)
-        return data[y]
-    }
-
     fun getOrNull(x: Int, y: Int): T? {
         return data.getOrNull(y)?.getOrNull(x)
     }
@@ -207,16 +202,6 @@ class MutableGrid<T : Any>(
         return DijkstraResult(
             source, pointToMinLengthFromSource, pointToPrev
         )
-    }
-
-    override fun forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
-        data.forEachIndexed { y, chars ->
-            var isFirst = true
-            chars.forEachIndexed { x, v ->
-                fn(x, y, v, isFirst)
-                isFirst = false
-            }
-        }
     }
 
     fun bfs(source: MutableIntPoint, nextStatesFn: MutableGrid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {

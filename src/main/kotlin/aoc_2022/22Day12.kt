@@ -3,6 +3,7 @@ package aoc_2022.day12
 import readInput
 import utils.MutableGrid
 import utils.MutableIntPoint
+import utils.forEach
 import utils.toip
 
 fun main() {

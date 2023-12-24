@@ -2,6 +2,7 @@ package aoc_2023
 
 import com.kietyo.ktruth.assertThat
 import utils.MutableIntPoint
+import utils.forEach
 import utils.toGrid
 import utils.toip
 import kotlin.math.exp

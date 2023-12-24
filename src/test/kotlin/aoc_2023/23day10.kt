@@ -6,6 +6,7 @@ import utils.IntPoint
 import utils.MutableGrid
 import utils.MutableIntPoint
 import utils.PointWithData
+import utils.forEach
 import utils.toGrid
 import utils.toip
 import kotlin.test.Test
