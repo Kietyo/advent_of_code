@@ -20,109 +20,120 @@ internal class `23day13` {
         VERTICAL, HORIZONTAL
     }
 
-    data class MirrorIndexResult(
-        val verticalI: Int? = null,
-        val horizontalI: Int? = null
-    ) {
-        fun isVerticalMirror() = verticalI != null
-        fun isHorizontalMirror() = horizontalI != null
-        fun hasMirror() = isVerticalMirror() || isHorizontalMirror()
-        fun onlyHasOneAlignment() = isVerticalMirror() xor isHorizontalMirror()
-        fun calculateScore(): Int {
-            require((horizontalI == null) xor (verticalI == null))
-            if (horizontalI != null) {
-                return (horizontalI+1) * 100
+    sealed class MirrorIndexResult {
+        data class Vertical(val i: Int) : MirrorIndexResult() {
+            override fun calculateScore(): Int {
+                return i + 1
             }
-            if (verticalI != null) {
-                return verticalI+1
-            }
-            TODO()
         }
 
-        fun calculateScoreUsingAlignment(alignment: Alignment): Int {
-            return when (alignment) {
-                Alignment.VERTICAL -> {
-                    require(verticalI != null)
-                    return verticalI+1
-                }
-                Alignment.HORIZONTAL -> {
-                    require(horizontalI != null)
-                    return (horizontalI+1)*100
-                }
+        data class Horizontal(val i: Int) : MirrorIndexResult() {
+            override fun calculateScore(): Int {
+                return (i + 1) * 100
             }
         }
+
+        abstract fun calculateScore(): Int
     }
 
-    private fun calculateMirrorIndexes(grid: Grid<Char>): MirrorIndexResult {
-        val verticalMirrorI = run {
-            for (i in 0..<grid.width-1) {
-                var leftI = i
-                var rightI = i+1
-                var numEquals = 0
-                var isMirror = false
-                while (true) {
-                    if (leftI < 0) {
-                        isMirror = true
-                        break
-                    }
-                    if (rightI >= grid.width) {
-                        isMirror = true
-                        break
-                    }
-                    val leftRow = grid.getColumn(leftI)
-                    val rightRow = grid.getColumn(rightI)
-                    if (leftRow == rightRow) {
-                        numEquals++
-                        leftI--
-                        rightI++
-                    } else {
-                        break
-                    }
+    //    data class MirrorIndexResult(
+    //        val verticalIs: List<Int> = emptyList(),
+    //        val horizontalIs: List<Int> = emptyList()
+    //    ) {
+    //        fun isVerticalMirror() = verticalIs.isNotEmpty()
+    //        fun isHorizontalMirror() = horizontalIs.isNotEmpty()
+    //        fun hasMirror() = isVerticalMirror() || isHorizontalMirror()
+    //        fun onlyHasOneAlignment() = isVerticalMirror() xor isHorizontalMirror()
+    //        fun calculateScore(): Int {
+    //            require(isVerticalMirror() xor isHorizontalMirror())
+    //            if (isHorizontalMirror()) {
+    //                return (horizontalIs.first()+1) * 100
+    //            }
+    //            if (isVerticalMirror()) {
+    //                return verticalIs.first()+1
+    //            }
+    //            TODO()
+    //        }
+    //
+    //        fun calculateScoreUsingAlignment(alignment: Alignment): Int {
+    //            return when (alignment) {
+    //                Alignment.VERTICAL -> {
+    //                    require(isVerticalMirror())
+    //                    return verticalIs.first()+1
+    //                }
+    //                Alignment.HORIZONTAL -> {
+    //                    require(isHorizontalMirror())
+    //                    return (horizontalIs.first()+1)*100
+    //                }
+    //            }
+    //        }
+    //    }
+
+    private fun calculateMirrorIndexes(grid: Grid<Char>): List<MirrorIndexResult> {
+        val results = mutableListOf<MirrorIndexResult>()
+        for (i in 0..<grid.width - 1) {
+            var leftI = i
+            var rightI = i + 1
+            var numEquals = 0
+            var isMirror = false
+            while (true) {
+                if (leftI < 0) {
+                    isMirror = true
+                    break
                 }
-                if (isMirror) {
-                    return@run i
+                if (rightI >= grid.width) {
+                    isMirror = true
+                    break
+                }
+                val leftRow = grid.getColumn(leftI)
+                val rightRow = grid.getColumn(rightI)
+                if (leftRow == rightRow) {
+                    numEquals++
+                    leftI--
+                    rightI++
+                } else {
+                    break
                 }
             }
-            return@run null
+            if (isMirror) {
+                results.add(MirrorIndexResult.Vertical(i))
+            }
         }
 
-        val horizontalMirrorI =  run {
-            for (i in 0..<grid.height-1) {
-                var upI = i
-                var downI = i+1
-                var numEquals = 0
-                var isMirror = false
-                while (true) {
-                    if (upI < 0) {
-                        isMirror = true
-                        break
-                    }
-                    if (downI >= grid.height) {
-                        isMirror = true
-                        break
-                    }
-                    val upRow = grid.getRow(upI)
-                    val downRow = grid.getRow(downI)
-                    if (upRow == downRow) {
-                        numEquals++
-                        upI--
-                        downI++
-                    } else {
-                        break
-                    }
+        for (i in 0..<grid.height - 1) {
+            var upI = i
+            var downI = i + 1
+            var numEquals = 0
+            var isMirror = false
+            while (true) {
+                if (upI < 0) {
+                    isMirror = true
+                    break
                 }
-                if (isMirror) {
-                    return@run i
+                if (downI >= grid.height) {
+                    isMirror = true
+                    break
+                }
+                val upRow = grid.getRow(upI)
+                val downRow = grid.getRow(downI)
+                if (upRow == downRow) {
+                    numEquals++
+                    upI--
+                    downI++
+                } else {
+                    break
                 }
             }
-            return@run null
+            if (isMirror) {
+                results.add(MirrorIndexResult.Horizontal(i))
+            }
         }
-        return MirrorIndexResult(verticalMirrorI, horizontalMirrorI)
+        return results
     }
 
     private fun calculate(grid: Grid<Char>): Int {
         val calc = calculateMirrorIndexes(grid)
-        return calc.calculateScore()
+        return calc.first().calculateScore()
     }
 
     private fun part1Calculation(input: List<String>): Int {
@@ -153,19 +164,9 @@ internal class `23day13` {
                 '.' -> grid[x, y] = '.'
                 '#' -> grid[x, y] = '#'
             }
-            if (newMirrorIndex.hasMirror() && firstCalc != newMirrorIndex) {
-                if (firstCalc.isVerticalMirror() && newMirrorIndex.isHorizontalMirror()) {
-                    return newMirrorIndex.calculateScoreUsingAlignment(Alignment.HORIZONTAL)
-                }
-                if (firstCalc.isHorizontalMirror() && newMirrorIndex.isVerticalMirror()) {
-                    return newMirrorIndex.calculateScoreUsingAlignment(Alignment.VERTICAL)
-                }
-                if (newMirrorIndex.onlyHasOneAlignment()) {
-                    return newMirrorIndex.calculateScore()
-                }
-                TODO()
+            if (newMirrorIndex.isNotEmpty() && firstCalc != newMirrorIndex) {
+                return (newMirrorIndex - firstCalc).first().calculateScore()
             }
-
 
         }
         TODO()
@@ -186,7 +187,7 @@ internal class `23day13` {
         println(calcs)
         println(calcs.sum())
 
-        return 0
+        return calcs.sum()
     }
 
     @Test
@@ -204,18 +205,18 @@ internal class `23day13` {
     @Test
     fun part2Test() {
         val input = readInput(testFileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(400)
     }
 
     @Test
     fun part2Test2() {
         val input = readInput("day13_test2")
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(1400)
     }
 
     @Test
     fun part2() {
         val input = readInput(fileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(28627)
     }
 }
