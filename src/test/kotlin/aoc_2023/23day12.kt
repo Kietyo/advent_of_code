@@ -284,7 +284,7 @@ internal class `23day12` {
     fun part2() {
         val input = readInput(fileName)
     // 15464163264, too low
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(17788038834112L)
     }
 }
 
