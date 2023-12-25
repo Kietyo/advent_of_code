@@ -56,3 +56,15 @@ inline fun <T> Grid<T>.forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNe
         }
     }
 }
+
+inline fun <T> Grid<T>.forEachReversed(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
+    repeat(numRows) { y ->
+        val translatedY = (width - 1 - y)
+        var isFirst = true
+        repeat(numColumns) { x ->
+            val translatedX = (height - 1 - x)
+            fn(translatedX, translatedY, get(translatedX, translatedY), isFirst)
+            isFirst = false
+        }
+    }
+}

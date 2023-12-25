@@ -3,8 +3,6 @@ package utils
 import java.util.*
 import kotlin.Comparator
 
-
-
 data class PointWithData<T>(
     val data: T, override val x: Int, override val y: Int,
     val relativeDirection: Direction
@@ -19,7 +17,7 @@ class MutableGrid<T : Any>(
     override val numColumns = data.maxOf { it.size }
 
     init {
-        println("numRows: $numRows, numColumns: $numColumns")
+//        println("numRows: $numRows, numColumns: $numColumns")
     }
 
     override fun toString(): String {
@@ -265,6 +263,20 @@ class MutableGrid<T : Any>(
         }
 
         return elements
+    }
+
+    companion object {
+        inline fun <reified T : Any> create(
+            width: Int,
+            height: Int,
+            function: () -> T
+        ): MutableGrid<T> {
+            val data = mutableListOf<Array<T>>()
+            repeat(height) { y ->
+                data.add(Array(width) { function() })
+            }
+            return MutableGrid(data)
+        }
     }
 }
 
