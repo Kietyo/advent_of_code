@@ -145,15 +145,31 @@ class MutableGrid<T : Any>(
         val source: MutableIntPoint,
         val pointToMinDist: Map<MutableIntPoint, Int>,
         val pointToPrev: Map<MutableIntPoint, MutableIntPoint>
-    )
+    ) {
+        fun getPathToPoint(point: MutableIntPoint): List<MutableIntPoint> {
+            val path = mutableListOf<MutableIntPoint>()
+            var curr = point
+            while (true) {
+                path.add(curr)
+                if (curr == source) {
+                    break
+                }
+                curr = pointToPrev[curr]!!
+            }
+            return path
+        }
+    }
 
-    fun dijkstra(source: MutableIntPoint, nextStatesFn: MutableGrid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {
+    data class PointWithCost(val point: MutableIntPoint, val cost: Int)
+    fun dijkstra(source: MutableIntPoint,
+                 nextStatesFn: MutableGrid<T>.(point: MutableIntPoint) -> List<PointWithCost>): DijkstraResult {
+
         data class DNode(val point: MutableIntPoint, val distance: Int)
 
         val pointToMinLengthFromSource = mutableMapOf<MutableIntPoint, Int>()
         val pointToPrev = mutableMapOf<MutableIntPoint, MutableIntPoint>()
 
-        val statesToExplore = PriorityQueue<DNode>(object : Comparator<DNode> {
+        val statesToExplore = PriorityQueue(object : Comparator<DNode> {
             override fun compare(o1: DNode, o2: DNode): Int {
                 return o1.distance.compareTo(o2.distance)
             }
@@ -165,16 +181,17 @@ class MutableGrid<T : Any>(
         //            }
         //        }
 
+        pointToMinLengthFromSource.put(source, 0)
         statesToExplore.add(DNode(source, 0))
 
         while (statesToExplore.isNotEmpty()) {
             val currMinNode = statesToExplore.poll()!!
 
             val nextStates = this.nextStatesFn(currMinNode.point)
-            nextStates.forEach loop@{
-
+            nextStates.forEach loop@{curr ->
+                val it = curr.point
                 val currBest = pointToMinLengthFromSource.getOrDefault(it, Int.MAX_VALUE)
-                val alt = currMinNode.distance + 1
+                val alt = currMinNode.distance + curr.cost
                 if (alt < currBest) {
                     pointToPrev[it] = currMinNode.point
                     pointToMinLengthFromSource[it] = alt
