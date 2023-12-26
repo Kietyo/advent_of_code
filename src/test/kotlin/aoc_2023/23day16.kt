@@ -18,7 +18,7 @@ internal class `23day16` {
     data class Cursor(
         val x: Int,
         val y: Int,
-        var direction: Direction
+        val direction: Direction
     ) {
         val point get() = MutableIntPoint(x, y)
         fun move(): Cursor {
@@ -45,8 +45,7 @@ internal class `23day16` {
 
         val visitedCursors = mutableSetOf<Cursor>()
 
-        var cursors = listOf<Cursor>(Cursor(0, 0, Direction.RIGHT))
-        visitedCursors.add(cursors.first())
+        var cursors = listOf<Cursor>(Cursor(-1, 0, Direction.RIGHT))
 
         var i = 0
         while (cursors.isNotEmpty()) {
@@ -65,12 +64,10 @@ internal class `23day16` {
                 if (!grid.contains(newPoint)) {
                     continue
                 }
-                val charUnderCursor = grid[newPoint]
-                when (charUnderCursor) {
+                val charUnderNewCursor = grid[newPoint]
+                when (charUnderNewCursor) {
                     '.' -> {
-                        if (grid.contains(newPoint)) {
-                            addNewCursorIfNew(newCursor)
-                        }
+                        addNewCursorIfNew(newCursor)
                     }
                     '|' -> {
                         when (newCursor.direction) {
@@ -101,7 +98,6 @@ internal class `23day16` {
                         }
                     }
                     '\\' -> { // \
-                        visitedCursors.add(newCursor)
                         val directionToSplitter = prevCursorPoint.directionTo(newPoint)
                         when (directionToSplitter) {
                             Direction.RIGHT -> {
@@ -120,7 +116,6 @@ internal class `23day16` {
                         }
                     }
                     '/' -> {
-                        visitedCursors.add(newCursor)
                         val directionToSplitter = prevCursorPoint.directionTo(newPoint)
                         when (directionToSplitter) {
                             Direction.RIGHT -> {
@@ -141,25 +136,22 @@ internal class `23day16` {
                 }
             }
 
-//            newCursors.removeIf {
-//                visitedPoints.contains(it.point)
-//            }
-
             cursors = newCursors
+
+            val visitedPointsGrid = MutableGrid.create(grid.width, grid.height) {'.'}
+            for (cursor in visitedCursors) {
+                val point = cursor.point
+                visitedPointsGrid.set(point.x, point.y, '#')
+            }
+            println(visitedPointsGrid)
+
             i++
         }
 
-
-        val visitedPointsGrid = MutableGrid.create(grid.width, grid.height) {'.'}
-        for (cursor in visitedCursors) {
-            val point = cursor.point
-            visitedPointsGrid.set(point.x, point.y, '#')
-        }
-        println(visitedPointsGrid)
-
         println(visitedCursors.size)
-        println(visitedCursors.map { it.point }.toSet().size)
-        return 0
+        val count = visitedCursors.map { it.point }.toSet().size
+        println(count)
+        return count
     }
 
     private fun part2Calculation(input: List<String>): Int {
@@ -172,13 +164,26 @@ internal class `23day16` {
     @Test
     fun part1Test() {
         val input = readInput(testFileName)
-        assertThat(part1Calculation(input)).isEqualTo(0)
+        assertThat(part1Calculation(input)).isEqualTo(46)
+    }
+
+    @Test
+    fun part1Test2() {
+        val input = readInput("day16_test2")
+        assertThat(part1Calculation(input)).isEqualTo(14)
+    }
+
+    @Test
+    fun part1Test3() {
+        val input = readInput("day16_test3")
+        assertThat(part1Calculation(input)).isEqualTo(22)
     }
 
     @Test
     fun part1() {
         val input = readInput(fileName)
         // 5463, too low
+        // 7183, too low
         assertThat(part1Calculation(input)).isEqualTo(0)
     }
 
