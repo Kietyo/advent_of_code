@@ -36,6 +36,9 @@ data class MutableIntPoint(
     val first get() = x
     val second get() = y
 
+    val oneLeft get() = MutableIntPoint(x-1, y)
+    val oneRight get() = MutableIntPoint(x+1, y)
+    val oneUp get() = MutableIntPoint(x, y - 1)
     val oneDown get() = MutableIntPoint(x, y + 1)
     val oneDownOneLeft get() = MutableIntPoint(x - 1, y + 1)
     val oneDownOneRight get() = MutableIntPoint(x + 1, y + 1)

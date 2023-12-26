@@ -45,6 +45,10 @@ public interface Grid<T> {
             function(y, currRowData)
         }
     }
+
+    fun contains(point: MutableIntPoint): Boolean {
+        return point.x in 0..<width && point.y in 0..<height
+    }
 }
 
 inline fun <T> Grid<T>.forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
