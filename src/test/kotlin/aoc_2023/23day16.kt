@@ -2,6 +2,7 @@ package aoc_2023
 
 import com.kietyo.ktruth.assertThat
 import utils.Direction
+import utils.Grid
 import utils.MutableGrid
 import utils.MutableIntPoint
 import utils.toGrid
@@ -35,21 +36,12 @@ internal class `23day16` {
         }
     }
 
-    private fun part1Calculation(input: List<String>): Int {
-        val converted = input.convertToDataObjectList()
-        println(converted)
-
-        val grid = converted.toGrid()
-
-        println(grid)
-
+    fun calculateEnergization(grid: Grid<Char>, startCursor: Cursor): Int {
         val visitedCursors = mutableSetOf<Cursor>()
-
-        var cursors = listOf<Cursor>(Cursor(-1, 0, Direction.RIGHT))
-
+        var cursors = listOf<Cursor>(startCursor)
         var i = 0
         while (cursors.isNotEmpty()) {
-            println("i: $i")
+//            println("i: $i")
             val newCursors = mutableListOf<Cursor>()
             fun addNewCursorIfNew(cursor: Cursor) {
                 if (cursor !in visitedCursors) {
@@ -135,30 +127,51 @@ internal class `23day16` {
                     }
                 }
             }
-
             cursors = newCursors
 
-            val visitedPointsGrid = MutableGrid.create(grid.width, grid.height) {'.'}
-            for (cursor in visitedCursors) {
-                val point = cursor.point
-                visitedPointsGrid.set(point.x, point.y, '#')
-            }
-            println(visitedPointsGrid)
-
+            //            val visitedPointsGrid = MutableGrid.create(grid.width, grid.height) {'.'}
+            //            for (cursor in visitedCursors) {
+            //                val point = cursor.point
+            //                visitedPointsGrid.set(point.x, point.y, '#')
+            //            }
+            //            println(visitedPointsGrid)
             i++
         }
-
-        println(visitedCursors.size)
         val count = visitedCursors.map { it.point }.toSet().size
         println(count)
         return count
+    }
+
+    private fun part1Calculation(input: List<String>): Int {
+        val converted = input.convertToDataObjectList()
+        println(converted)
+
+        val grid = converted.toGrid()
+        println(grid)
+
+        return calculateEnergization(grid, Cursor(-1,0, Direction.RIGHT))
     }
 
     private fun part2Calculation(input: List<String>): Int {
         val converted = input.convertToDataObjectList()
         println(converted)
 
-        return 0
+        val grid = converted.toGrid()
+        println(grid)
+
+        var maxEnergization = 0
+        repeat(grid.width) { x ->
+            maxEnergization = maxOf(calculateEnergization(grid, Cursor(x, -1, Direction.DOWN)), maxEnergization)
+            maxEnergization = maxOf(calculateEnergization(grid, Cursor(x, grid.height, Direction.UP)), maxEnergization)
+        }
+        repeat(grid.height) { y ->
+            maxEnergization = maxOf(calculateEnergization(grid, Cursor(-1, y, Direction.RIGHT)), maxEnergization)
+            maxEnergization = maxOf(calculateEnergization(grid, Cursor(grid.width, y, Direction.LEFT)), maxEnergization)
+        }
+
+        println("maxEnergization: $maxEnergization")
+
+        return maxEnergization
     }
 
     @Test
@@ -184,18 +197,18 @@ internal class `23day16` {
         val input = readInput(fileName)
         // 5463, too low
         // 7183, too low
-        assertThat(part1Calculation(input)).isEqualTo(0)
+        assertThat(part1Calculation(input)).isEqualTo(7185)
     }
 
     @Test
     fun part2Test() {
         val input = readInput(testFileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(51)
     }
 
     @Test
     fun part2() {
         val input = readInput(fileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(7616)
     }
 }
