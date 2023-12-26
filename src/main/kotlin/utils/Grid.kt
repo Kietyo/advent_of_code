@@ -5,10 +5,11 @@ public interface Grid<T> {
     val numColumns: Int
     val width: Int get() = numColumns
     val height: Int get() = numRows
-    operator fun get(point: MutableIntPoint): T
+    operator fun get(point: IntPoint): T
     operator fun get(x: Int, y: Int): T
     fun getOrDefault(x: Int, y: Int, default: () -> T): T
     fun getOrDefault(point: IntPoint, default: () -> T): T
+    fun getOrNull(x: Int, y: Int): T?
     fun getRow(y: Int): List<T> {
         require(y in 0 until numRows)
         val data = mutableListOf<T>()
@@ -46,8 +47,29 @@ public interface Grid<T> {
         }
     }
 
-    fun contains(point: MutableIntPoint): Boolean {
+    operator fun contains(point: IntPoint): Boolean {
         return point.x in 0..<width && point.y in 0..<height
+    }
+
+    private fun getAdjacentInternal(x: Int, y: Int, direction: Direction): PointWithData<T>? {
+        val data = getOrNull(x, y) ?: return null
+        return PointWithData(data, x, y, direction)
+    }
+
+    fun getAdjacents(x: Int, y: Int, includeDiagonals: Boolean = true): List<PointWithData<T>> {
+        return buildList {
+            addIfNotNull(getAdjacentInternal(x - 1, y, Direction.LEFT))
+            addIfNotNull(getAdjacentInternal(x + 1, y, Direction.RIGHT))
+            addIfNotNull(getAdjacentInternal(x, y - 1, Direction.UP))
+            addIfNotNull(getAdjacentInternal(x, y + 1, Direction.DOWN))
+            if (includeDiagonals) {
+                addIfNotNull(getAdjacentInternal(x - 1, y - 1, Direction.UP_LEFT))
+                addIfNotNull(getAdjacentInternal(x - 1, y + 1, Direction.DOWN_LEFT))
+                addIfNotNull(getAdjacentInternal(x + 1, y - 1, Direction.UP_RIGHT))
+                addIfNotNull(getAdjacentInternal(x + 1, y + 1, Direction.DOWN_RIGHT))
+            }
+
+        }
     }
 }
 

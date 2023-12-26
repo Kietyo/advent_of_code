@@ -3,6 +3,16 @@ package utils
 import java.util.*
 import kotlin.Comparator
 
+data class PointWithDirection(
+    override val x: Int, override val y: Int,
+    val direction: Direction
+): IntPoint {
+    fun toIntPoint() = MutableIntPoint(x, y)
+    fun move() = PointWithDirection(x + direction.x, y + direction.y, direction)
+    fun rotateClockwise() = PointWithDirection(x, y, direction.getNextDirectionClockwise())
+    fun rotateCounterClockwise() = PointWithDirection(x, y, direction.getNextDirectionCounterClockwise())
+}
+
 data class PointWithData<T>(
     val data: T, override val x: Int, override val y: Int,
     val relativeDirection: Direction
@@ -57,7 +67,7 @@ class MutableGrid<T : Any>(
         return datas
     }
 
-    override operator fun get(point: MutableIntPoint): T = get(point.first, point.second)
+    override operator fun get(point: IntPoint): T = get(point.x, point.y)
     override operator fun get(x: Int, y: Int): T {
         return data[y][x]
     }
@@ -77,7 +87,7 @@ class MutableGrid<T : Any>(
         return getOrDefault(xNormalize, yNormalize, default)
     }
 
-    fun getOrNull(x: Int, y: Int): T? {
+    override fun getOrNull(x: Int, y: Int): T? {
         return data.getOrNull(y)?.getOrNull(x)
     }
 
@@ -100,26 +110,7 @@ class MutableGrid<T : Any>(
         return allPoints
     }
 
-    private fun getAdjacentInternal(x: Int, y: Int, direction: Direction): PointWithData<T>? {
-        val data = getOrNull(x, y) ?: return null
-        return PointWithData(data, x, y, direction)
-    }
 
-    fun getAdjacents(x: Int, y: Int, includeDiagonals: Boolean = true): List<PointWithData<T>> {
-        return buildList {
-            addIfNotNull(getAdjacentInternal(x - 1, y, Direction.LEFT))
-            addIfNotNull(getAdjacentInternal(x + 1, y, Direction.RIGHT))
-            addIfNotNull(getAdjacentInternal(x, y - 1, Direction.UP))
-            addIfNotNull(getAdjacentInternal(x, y + 1, Direction.DOWN))
-            if (includeDiagonals) {
-                addIfNotNull(getAdjacentInternal(x - 1, y - 1, Direction.UP_LEFT))
-                addIfNotNull(getAdjacentInternal(x - 1, y + 1, Direction.DOWN_LEFT))
-                addIfNotNull(getAdjacentInternal(x + 1, y - 1, Direction.UP_RIGHT))
-                addIfNotNull(getAdjacentInternal(x + 1, y + 1, Direction.DOWN_RIGHT))
-            }
-
-        }
-    }
 
     fun isNearWall(x: Int, y: Int): Boolean {
         return getOrNull(x - 1, y) == null ||

@@ -102,9 +102,14 @@ fun List<String>.toGrid(): MutableGrid<Char> {
     return MutableGrid(this.map { it.toCharArray().toTypedArray() })
 }
 
+fun List<String>.toIntGrid(): MutableGrid<Int> {
+    return MutableGrid(this.map { it.map { it.digitToInt() }.toIntArray().toTypedArray() })
+}
+
 enum class Direction(
     val movementOffset: IntPoint,
 ) {
+    NONE(0 toip 0),
     RIGHT(1 toip 0),
     LEFT(-1 toip 0),
     DOWN(0 toip 1),
@@ -118,11 +123,31 @@ enum class Direction(
     val y: Int get() = movementOffset.y
 
     fun getNextDirectionClockwise(): Direction {
-        return Direction.values().getCyclic(ordinal + 1)
+        return when (this) {
+            NONE -> TODO()
+            RIGHT -> DOWN
+            LEFT -> UP
+            DOWN -> LEFT
+            UP -> RIGHT
+            UP_LEFT -> TODO()
+            UP_RIGHT -> TODO()
+            DOWN_LEFT -> TODO()
+            DOWN_RIGHT -> TODO()
+        }
     }
 
     fun getNextDirectionCounterClockwise(): Direction {
-        return Direction.values().getCyclic(ordinal - 1)
+        return when (this) {
+            NONE -> TODO()
+            RIGHT -> UP
+            LEFT -> DOWN
+            DOWN -> RIGHT
+            UP -> LEFT
+            UP_LEFT -> TODO()
+            UP_RIGHT -> TODO()
+            DOWN_LEFT -> TODO()
+            DOWN_RIGHT -> TODO()
+        }
     }
 }
 

@@ -32,6 +32,7 @@ internal class `23day16` {
                 Direction.UP_RIGHT -> TODO()
                 Direction.DOWN_LEFT -> TODO()
                 Direction.DOWN_RIGHT -> TODO()
+                Direction.NONE -> TODO()
             }
         }
     }
