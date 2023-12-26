@@ -3,11 +3,7 @@ package aoc_2023
 import com.kietyo.ktruth.assertThat
 import utils.Direction
 import utils.Grid
-import utils.IntPoint
-import utils.MutableGrid
-import utils.MutableIntPoint
 import utils.PointWithDirection
-import utils.toGrid
 import utils.toIntGrid
 import kotlin.math.min
 import kotlin.test.Test
@@ -27,15 +23,16 @@ internal class `23day17` {
         val x get() = pointWithDirection.x
         val y get() = pointWithDirection.y
         val direction get() = pointWithDirection.direction
-        init {
-            require(stride >= 1 && stride <= 3)
-        }
+
+//        init {
+//            require(stride >= 1 && stride <= 3)
+//        }
     }
 
     private fun numLast3MatchingLastDirection(path: List<WalkPoint>): Int {
         val lastDir = path.last().direction
         var num = 1
-        for (i in (path.size-2) downTo maxOf(0, path.size-1-3)) {
+        for (i in (path.size - 2) downTo maxOf(0, path.size - 1 - 3)) {
             if (path[i].direction == lastDir) {
                 num++
             } else {
@@ -45,63 +42,57 @@ internal class `23day17` {
         return num
     }
 
-    class Solver(val grid: Grid<Int>) {
+    class Solver(val grid: Grid<Int>,
+                 val minStrideBeforeTurning: Int = 1,
+        val maxStrideStraightAllowed: Int = 3) {
         var leastHeatLoss = Int.MAX_VALUE
-        val pointToLeastTraveler = mutableMapOf<WalkPoint, Traveler>()
+        val pointToLeastHeatCost = mutableMapOf<WalkPoint, Int>()
 
         inner class Traveler(
-            val path: List<WalkPoint>,
+            val last: WalkPoint,
             val currHeatLoss: Int
         ) {
-            val last get() = path.last()
-            private fun isLast3DirectionsSame(): Boolean {
-                val last3 = path.takeLast(3)
-                return last3.all { it.direction == last3.first().direction }
-            }
-
-
             fun getNextStates(): MutableList<WalkPoint> {
-                val last = last
                 val states = mutableListOf<WalkPoint>()
-                if (last.stride < 3) {
+                if (last.stride < maxStrideStraightAllowed) {
                     val next = last.pointWithDirection.move()
                     if (next in grid) {
-                        states.add(WalkPoint(next, last.stride+1))
+                        states.add(WalkPoint(next, last.stride + 1))
                     }
                 }
 
-                run {
-                    val next = last.pointWithDirection.rotateClockwise().move()
-                    if (next in grid) {
-                        states.add(WalkPoint(next, 1))
+                if (last.stride >= minStrideBeforeTurning) {
+                    run {
+                        val next = last.pointWithDirection.rotateClockwise().move()
+                        if (next in grid) {
+                            states.add(WalkPoint(next, 1))
+                        }
                     }
-                }
 
-                run {
-                    val next = last.pointWithDirection.rotateCounterClockwise().move()
-                    if (next in grid) {
-                        states.add(WalkPoint(next, 1))
+                    run {
+                        val next = last.pointWithDirection.rotateCounterClockwise().move()
+                        if (next in grid) {
+                            states.add(WalkPoint(next, 1))
+                        }
                     }
                 }
                 return states
             }
 
             fun addToPath(p: WalkPoint): Traveler {
-                return Traveler(path + p, currHeatLoss + grid[p.pointWithDirection])
+                return Traveler(p, currHeatLoss + grid[p.pointWithDirection])
             }
         }
 
-        fun solve() {
+        fun solve(): Int {
             var travelers = mutableListOf(
                 Traveler(
-                    listOf(
-                        WalkPoint(PointWithDirection(0, 0, Direction.RIGHT), 1),
-                    ), grid[0, 0]
+                    WalkPoint(PointWithDirection(0, 0, Direction.RIGHT), 1),
+                    grid[0, 0]
                 ),
                 Traveler(
-                    listOf(
-                        WalkPoint(PointWithDirection(0, 0, Direction.DOWN), 1),
-                    ), grid[0, 0]
+                    WalkPoint(PointWithDirection(0, 0, Direction.DOWN), 1),
+                    grid[0, 0]
                 )
             )
 
@@ -117,17 +108,17 @@ internal class `23day17` {
                         continue
                     }
                     val lastPoint = traveler.last
-                    val leastTraveler = pointToLeastTraveler.get(lastPoint)
-                    if (leastTraveler != null) {
-                        if (traveler.currHeatLoss >= leastTraveler.currHeatLoss) {
+                    val leastHeatCostForCurrentPoint = pointToLeastHeatCost.get(lastPoint)
+                    if (leastHeatCostForCurrentPoint != null) {
+                        if (traveler.currHeatLoss >= leastHeatCostForCurrentPoint) {
                             // Already exists a path to this pos that is better or the same
                             continue
                         } else {
                             // Current traveler is better
-                            pointToLeastTraveler[lastPoint] = traveler
+                            pointToLeastHeatCost[lastPoint] = traveler.currHeatLoss
                         }
                     } else {
-                        pointToLeastTraveler[lastPoint] = traveler
+                        pointToLeastHeatCost[lastPoint] = traveler.currHeatLoss
                     }
                     for (state in traveler.getNextStates()) {
                         newTravelers.add(traveler.addToPath(state))
@@ -136,9 +127,10 @@ internal class `23day17` {
                 travelers = newTravelers
             }
 
-            val res = leastHeatLoss - grid[0,0]
+            val res = leastHeatLoss - grid[0, 0]
 
             println("res: $res")
+            return res
         }
     }
 
@@ -150,39 +142,43 @@ internal class `23day17` {
         println(grid)
 
         val solver = Solver(grid)
-        solver.solve()
 
-        return 0
+        return solver.solve()
     }
 
     private fun part2Calculation(input: List<String>): Int {
         val converted = input.convertToDataObjectList()
         println(converted)
 
-        return 0
+        val grid = converted.toIntGrid()
+        println(grid)
+
+        val solver = Solver(grid, minStrideBeforeTurning = 4, maxStrideStraightAllowed = 10)
+
+        return solver.solve()
     }
 
     @Test
     fun part1Test() {
         val input = readInput(testFileName)
-        assertThat(part1Calculation(input)).isEqualTo(0)
+        assertThat(part1Calculation(input)).isEqualTo(102)
     }
 
     @Test
     fun part1() {
         val input = readInput(fileName)
-        assertThat(part1Calculation(input)).isEqualTo(0)
+        assertThat(part1Calculation(input)).isEqualTo(1023)
     }
 
     @Test
     fun part2Test() {
         val input = readInput(testFileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(94)
     }
 
     @Test
     fun part2() {
         val input = readInput(fileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
+        assertThat(part2Calculation(input)).isEqualTo(1165)
     }
 }
