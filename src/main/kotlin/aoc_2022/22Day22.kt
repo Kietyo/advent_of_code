@@ -2,7 +2,7 @@ package aoc_2022
 
 import readInput
 import utils.Direction
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.IntPoint
 import utils.MutableIntPoint
 import utils.normalizeIndex
@@ -212,7 +212,7 @@ fun calculatePointRelativeToDestinationRegion(
 }
 
 data class CubeGrid(
-    val grid: MutableGrid<Char>,
+    val grid: MutableArrayGrid<Char>,
     val rotationList: List<SideRotationTranslation>,
     val createRegionFn: (Int) -> List<Region>,
     val cubeLength: Int = grid.numRows / 3
@@ -292,7 +292,7 @@ data class CubeGrid(
     }
 }
 
-fun MutableGrid<Char>.getNextPoint(
+fun MutableArrayGrid<Char>.getNextPoint(
     currPoint: IntPoint,
     direction: Direction
 ): IntPoint {
@@ -320,7 +320,7 @@ fun main() {
         println(gridLines.joinToString("\n"))
         println(commandLine)
 
-        val grid = MutableGrid(gridLines.map { it.toCharArray().toTypedArray() })
+        val grid = MutableArrayGrid(gridLines.map { it.toCharArray().toTypedArray() })
 
         val commands = commandLine.splitByPredicate {
             it == 'L' || it == 'R'
@@ -368,7 +368,7 @@ fun main() {
         println(gridLines.joinToString("\n"))
         println(commandLine)
 
-        val grid = MutableGrid(gridLines.map { it.toCharArray().toTypedArray() })
+        val grid = MutableArrayGrid(gridLines.map { it.toCharArray().toTypedArray() })
 
         val commands = commandLine.splitByPredicate {
             it == 'L' || it == 'R'

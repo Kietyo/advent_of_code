@@ -3,7 +3,6 @@ package aoc_2023
 import com.kietyo.ktruth.assertThat
 import utils.Direction
 import utils.Grid
-import utils.MutableGrid
 import utils.MutableIntPoint
 import utils.toGrid
 import kotlin.test.Test

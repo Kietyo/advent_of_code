@@ -3,7 +3,7 @@ package aoc_2023
 import com.kietyo.ktruth.assertThat
 import utils.Direction
 import utils.IntPoint
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.MutableIntPoint
 import utils.PointWithData
 import utils.forEach
@@ -192,7 +192,7 @@ internal class `23day10` {
             else -> TODO()
         }
 
-        val wideGrid = MutableGrid(buildList {
+        val wideGrid = MutableArrayGrid(buildList {
             repeat(grid.numRows * 2) {
                 add(Array(grid.numColumns * 2) {'.'})
             }

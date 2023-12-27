@@ -11,9 +11,23 @@ internal class `23day18` {
         this
     }
 
+    data class Instruction(
+        val dir: Char,
+        val num: Int,
+        val hex: String
+    )
+
     private fun part1Calculation(input: List<String>): Int {
         val converted = input.convertToDataObjectList()
+
         println(converted)
+        val regex = Regex("(\\w) (\\d+) \\((.+)\\)")
+        val instructions = converted.map {
+            val match = regex.matchEntire(it)
+            val (dir, numString, hex) = match!!.destructured
+            Instruction(dir.first(), numString.toInt(), hex)
+        }
+        println(instructions)
 
         return 0
     }

@@ -2,7 +2,7 @@ package aoc_2023
 
 import com.kietyo.ktruth.assertThat
 import utils.Grid
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.forEach
 import utils.splitByNewLine
 import utils.toGrid
@@ -148,7 +148,7 @@ internal class `23day13` {
         return calcs.sum()
     }
 
-    private fun calculatePart2(grid: MutableGrid<Char>): Int {
+    private fun calculatePart2(grid: MutableArrayGrid<Char>): Int {
         val firstCalc = calculateMirrorIndexes(grid)
         println("firstCalc: $firstCalc")
 

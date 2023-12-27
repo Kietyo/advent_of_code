@@ -2,7 +2,7 @@ package aoc_2022
 
 import readInput
 import utils.Direction
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.IntPoint
 import utils.normalizeIndex
 import utils.toGrid
@@ -20,7 +20,7 @@ fun printState(
     height: Int,
     width: Int,
     walls: Set<IntPoint>,
-    blizzards: List<MutableGrid.GridElement<Direction>>,
+    blizzards: List<MutableArrayGrid.GridElement<Direction>>,
     currPosition: IntPoint = START_POSITION
 ) {
     for (y in 0..height - 1) {
@@ -58,7 +58,7 @@ class OptimizationContext(
     val width: Int,
     val height: Int,
     val walls: Set<IntPoint>,
-    val blizzards: List<MutableGrid.GridElement<Direction>>,
+    val blizzards: List<MutableArrayGrid.GridElement<Direction>>,
     val blizzardXRange: IntRange,
     val blizzardYRange: IntRange
 ) {
@@ -67,18 +67,18 @@ class OptimizationContext(
     val blizzardRegionWidth = blizzardXRange.last - blizzardXRange.first + 1
     val blizzardRegionHeight = blizzardYRange.last - blizzardYRange.first + 1
 
-    val itrToBlizzardCache = mutableMapOf<Int, List<MutableGrid.GridElement<Direction>>>()
+    val itrToBlizzardCache = mutableMapOf<Int, List<MutableArrayGrid.GridElement<Direction>>>()
 
-    fun getBlizzardLocationsAfterIterations(itrNum: Int): List<MutableGrid.GridElement<Direction>> {
+    fun getBlizzardLocationsAfterIterations(itrNum: Int): List<MutableArrayGrid.GridElement<Direction>> {
         return itrToBlizzardCache.computeIfAbsent(itrNum) {
-            val newPosition = mutableListOf<MutableGrid.GridElement<Direction>>()
+            val newPosition = mutableListOf<MutableArrayGrid.GridElement<Direction>>()
             for (blizzard in blizzards) {
                 val normalizedPos = blizzard.x - 1 toip blizzard.y - 1
                 val offset = blizzard.value.movementOffset * itrNum
                 val newPos = normalizedPos + offset
                 newPos.x = normalizeIndex(newPos.x, blizzardRegionWidth) + 1
                 newPos.y = normalizeIndex(newPos.y, blizzardRegionHeight) + 1
-                newPosition.add(MutableGrid.GridElement(newPos.x, newPos.y, blizzard.value))
+                newPosition.add(MutableArrayGrid.GridElement(newPos.x, newPos.y, blizzard.value))
             }
             newPosition
         }
@@ -87,7 +87,7 @@ class OptimizationContext(
 
     fun getNextAvailableStates(
         currPosition: IntPoint,
-        newBlizzards: List<MutableGrid.GridElement<Direction>>
+        newBlizzards: List<MutableArrayGrid.GridElement<Direction>>
     ): List<IntPoint> {
         val nextStates = mutableListOf<IntPoint>()
         for (direction in Direction.values()) {
@@ -164,7 +164,7 @@ class OptimizationContext(
     }
 
     fun printState(
-        blizzards: List<MutableGrid.GridElement<Direction>> = this.blizzards,
+        blizzards: List<MutableArrayGrid.GridElement<Direction>> = this.blizzards,
         currPosition: IntPoint = START_POSITION
     ) {
         printState(height, width, walls, blizzards, currPosition)
@@ -182,7 +182,7 @@ fun main() {
         val blizzards = grid.filter { x, y, value ->
             value == '<' || value == '>' || value == '^' || value == 'v'
         }.map {
-            MutableGrid.GridElement(
+            MutableArrayGrid.GridElement(
                 it.x, it.y, when (it.value) {
                     '<' -> Direction.LEFT
                     '>' -> Direction.RIGHT

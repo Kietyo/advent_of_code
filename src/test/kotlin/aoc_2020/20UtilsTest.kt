@@ -2,8 +2,7 @@ package aoc_2020
 
 import com.kietyo.ktruth.assertThat
 import utils.Direction
-import utils.Matrix
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.PointWithData
 import utils.createRotationMatrix
 import utils.hexColorRegex
@@ -60,7 +59,7 @@ class `20UtilsTest` {
 
     @Test
     fun copyGridTest() {
-        val grid = MutableGrid(listOf(
+        val grid = MutableArrayGrid(listOf(
             arrayOf(1, 2, 3),
             arrayOf(4, 5, 6),
         ))
@@ -76,7 +75,7 @@ class `20UtilsTest` {
 
     @Test
     fun gridGetStrideTest() {
-        val grid = MutableGrid(listOf(
+        val grid = MutableArrayGrid(listOf(
             arrayOf(1, 2, 3, 4, 5),
             arrayOf(6, 7, 8, 9, 10),
             arrayOf(11, 12, 13, 14, 15),

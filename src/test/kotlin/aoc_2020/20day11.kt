@@ -1,7 +1,7 @@
 package aoc_2020
 
 import utils.Direction
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.PointWithData
 import utils.toGrid
 import kotlin.test.Test
@@ -17,7 +17,7 @@ internal class `20day11` {
         this.toGrid()
     }
 
-    private fun simulateRound(grid: MutableGrid<Char>): MutableGrid<Char> {
+    private fun simulateRound(grid: MutableArrayGrid<Char>): MutableArrayGrid<Char> {
         val newGrid = grid.copy()
         grid.getAllPoints(EMPTY).forEach {
             val numOccupiedAdjacents = grid.getAdjacents(it.x, it.y).filter { it.data == OCCUPIED }.size
@@ -34,7 +34,7 @@ internal class `20day11` {
         return newGrid
     }
 
-    private fun MutableGrid<Char>.getStrideAdjacents(x: Int, y: Int): List<PointWithData<Char>> {
+    private fun MutableArrayGrid<Char>.getStrideAdjacents(x: Int, y: Int): List<PointWithData<Char>> {
         return Direction.entries.mapNotNull {
             getStrideFrom(x, y, it).firstOrNull {
                 it.data != '.'
@@ -43,7 +43,7 @@ internal class `20day11` {
     }
 
 
-    private fun simulateRoundV2(grid: MutableGrid<Char>): MutableGrid<Char> {
+    private fun simulateRoundV2(grid: MutableArrayGrid<Char>): MutableArrayGrid<Char> {
         val newGrid = grid.copy()
         grid.getAllPoints(EMPTY).forEach {
             val strideAdjacents = grid.getStrideAdjacents(it.x, it.y)

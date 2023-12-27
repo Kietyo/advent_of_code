@@ -2,7 +2,7 @@ package aoc_2022
 
 import readInput
 import utils.Direction
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.IntPoint
 import utils.getCyclic
 import utils.toip
@@ -128,7 +128,7 @@ fun main() {
     fun part1(input: List<String>): Unit {
         println(input.joinToString("\n"))
 
-        val grid = MutableGrid(input.map { it.toCharArray().toTypedArray() })
+        val grid = MutableArrayGrid(input.map { it.toCharArray().toTypedArray() })
 
         val elfMap = mutableMapOf<Int, MutableSet<Int>>()
 

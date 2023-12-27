@@ -2,7 +2,7 @@ package aoc_2023
 
 import com.kietyo.ktruth.assertThat
 import utils.Grid
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.forEach
 import utils.forEachReversed
 import utils.toGrid
@@ -16,7 +16,7 @@ internal class `23day14` {
         this
     }
 
-    fun shiftNorth(grid: Grid<Char>, newGrid: MutableGrid<Char>) {
+    fun shiftNorth(grid: Grid<Char>, newGrid: MutableArrayGrid<Char>) {
         grid.forEach { x, y, value, _ ->
             when (value) {
                 '.' -> newGrid[x, y] = '.'
@@ -34,7 +34,7 @@ internal class `23day14` {
         }
     }
 
-    fun shiftWest(grid: Grid<Char>,newGrid: MutableGrid<Char>) {
+    fun shiftWest(grid: Grid<Char>,newGrid: MutableArrayGrid<Char>) {
         grid.forEach { x, y, value, _ ->
             when (value) {
                 '.' -> newGrid[x, y] = '.'
@@ -52,7 +52,7 @@ internal class `23day14` {
         }
     }
 
-    fun shiftSouth(grid: Grid<Char>, newGrid: MutableGrid<Char>){
+    fun shiftSouth(grid: Grid<Char>, newGrid: MutableArrayGrid<Char>){
         grid.forEachReversed { x, y, value, _ ->
             when (value) {
                 '.' -> newGrid[x, y] = '.'
@@ -70,7 +70,7 @@ internal class `23day14` {
         }
     }
 
-    fun shiftEast(grid: Grid<Char>, newGrid: MutableGrid<Char>) {
+    fun shiftEast(grid: Grid<Char>, newGrid: MutableArrayGrid<Char>) {
         grid.forEachReversed { x, y, value, _ ->
             when (value) {
                 '.' -> newGrid[x, y] = '.'
@@ -88,7 +88,7 @@ internal class `23day14` {
         }
     }
 
-    private fun fullyShift(initialGrid: MutableGrid<Char>, initialNewGrid: MutableGrid<Char>, shiftFn: (grid: Grid<Char>, newGrid: MutableGrid<Char>) -> Unit) {
+    private fun fullyShift(initialGrid: MutableArrayGrid<Char>, initialNewGrid: MutableArrayGrid<Char>, shiftFn: (grid: Grid<Char>, newGrid: MutableArrayGrid<Char>) -> Unit) {
         var fullyShiftedGrid = initialGrid
         var newGrid = initialNewGrid
         while (true) {
@@ -111,7 +111,7 @@ internal class `23day14` {
         println()
 
         val fullyShiftedNorthGrid = originalGrid
-        val newGrid = MutableGrid.create(fullyShiftedNorthGrid.width, fullyShiftedNorthGrid.height){'.'}
+        val newGrid = MutableArrayGrid.create(fullyShiftedNorthGrid.width, fullyShiftedNorthGrid.height){'.'}
         fullyShift(fullyShiftedNorthGrid, newGrid, ::shiftNorth)
         println(fullyShiftedNorthGrid)
 
@@ -137,7 +137,7 @@ internal class `23day14` {
         val memoItrsFirstSeen = mutableMapOf<List<List<Char>>, Long>()
 
         var currentGrid = originalGrid
-        var newGrid = MutableGrid.create(originalGrid.width, originalGrid.height){'.'}
+        var newGrid = MutableArrayGrid.create(originalGrid.width, originalGrid.height){'.'}
         var i = 0L
         while (true) {
             if (i == 1_000_000_000L) break

@@ -1,6 +1,6 @@
 package aoc_2020
 
-import utils.MutableGrid
+import utils.MutableArrayGrid
 import utils.toGrid
 import kotlin.test.Test
 
@@ -12,7 +12,7 @@ internal class `20day3` {
         this.toGrid()
     }
 
-    private fun MutableGrid<Char>.countTrees(rightNum: Int, downNum: Int): Int {
+    private fun MutableArrayGrid<Char>.countTrees(rightNum: Int, downNum: Int): Int {
         var i = 1
         var numTrees = 0
         while (true) {

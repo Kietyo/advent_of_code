@@ -1,13 +1,10 @@
 package utils
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.math.PI
 import kotlin.math.cos
-import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.math.sin
-import kotlin.time.measureTime
 
 infix fun Int.ind(v: String) = IndexedValue(this, v)
 
@@ -98,12 +95,12 @@ data class Matrix(
     }
 }
 
-fun List<String>.toGrid(): MutableGrid<Char> {
-    return MutableGrid(this.map { it.toCharArray().toTypedArray() })
+fun List<String>.toGrid(): MutableArrayGrid<Char> {
+    return MutableArrayGrid(this.map { it.toCharArray().toTypedArray() })
 }
 
-fun List<String>.toIntGrid(): MutableGrid<Int> {
-    return MutableGrid(this.map { it.map { it.digitToInt() }.toIntArray().toTypedArray() })
+fun List<String>.toIntGrid(): MutableArrayGrid<Int> {
+    return MutableArrayGrid(this.map { it.map { it.digitToInt() }.toIntArray().toTypedArray() })
 }
 
 enum class Direction(

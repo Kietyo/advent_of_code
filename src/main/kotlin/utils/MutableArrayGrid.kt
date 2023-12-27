@@ -20,7 +20,7 @@ data class PointWithData<T>(
     fun toIntPoint() = MutableIntPoint(x, y)
 }
 
-class MutableGrid<T : Any>(
+class MutableArrayGrid<T : Any>(
     val data: List<Array<T>>
 ): Grid<T> {
     override val numRows = data.size
@@ -38,7 +38,7 @@ class MutableGrid<T : Any>(
         return sb.toString()
     }
 
-    fun contentEquals(other: MutableGrid<T>): Boolean {
+    fun contentEquals(other: MutableArrayGrid<T>): Boolean {
         if (data.size != other.data.size) return false
         for (i in data.indices) {
             if (!data[i].contentEquals(other.data[i])) return false
@@ -121,7 +121,7 @@ class MutableGrid<T : Any>(
 
 
 
-    fun copy() = MutableGrid(data.map { it.clone() })
+    fun copy() = MutableArrayGrid(data.map { it.clone() })
 
     fun find(v: T): MutableIntPoint {
         data.forEachIndexed { y, chars ->
@@ -153,7 +153,7 @@ class MutableGrid<T : Any>(
 
     data class PointWithCost(val point: MutableIntPoint, val cost: Int)
     fun dijkstra(source: MutableIntPoint,
-                 nextStatesFn: MutableGrid<T>.(point: MutableIntPoint) -> List<PointWithCost>): DijkstraResult {
+                 nextStatesFn: MutableArrayGrid<T>.(point: MutableIntPoint) -> List<PointWithCost>): DijkstraResult {
 
         data class DNode(val point: MutableIntPoint, val distance: Int)
 
@@ -210,7 +210,7 @@ class MutableGrid<T : Any>(
         )
     }
 
-    fun bfs(source: MutableIntPoint, nextStatesFn: MutableGrid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {
+    fun bfs(source: MutableIntPoint, nextStatesFn: MutableArrayGrid<T>.(point: MutableIntPoint) -> List<MutableIntPoint>): DijkstraResult {
         val pointToMinLengthFromSource = mutableMapOf<MutableIntPoint, Int>()
         val pointToPrev = mutableMapOf<MutableIntPoint, MutableIntPoint>()
 
@@ -278,12 +278,12 @@ class MutableGrid<T : Any>(
             width: Int,
             height: Int,
             function: () -> T
-        ): MutableGrid<T> {
+        ): MutableArrayGrid<T> {
             val data = mutableListOf<Array<T>>()
             repeat(height) { y ->
                 data.add(Array(width) { function() })
             }
-            return MutableGrid(data)
+            return MutableArrayGrid(data)
         }
     }
 }
