@@ -6,7 +6,12 @@ interface IntPoint {
     val x: Int
     val y: Int
 
+    companion object {
+        operator fun invoke(x: Int, y: Int): IntPoint = MutableIntPoint(x, y)
+    }
+
     operator fun plus(other: IntPoint) = MutableIntPoint(x + other.x, y + other.y)
+    operator fun plus(other: Direction) = MutableIntPoint(x + other.x, y + other.y)
     operator fun times(multiplier: Int) = MutableIntPoint(x * multiplier, y * multiplier)
 
     fun clone(): MutableIntPoint {

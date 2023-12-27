@@ -1,15 +1,21 @@
 package utils
 
 public interface Grid<T> {
-    val numRows: Int
-    val numColumns: Int
+    val minX: Int
+    val maxX: Int
+    val minY: Int
+    val maxY: Int
+
+    val numRows: Int get() = maxY - minY + 1
+    val numColumns: Int get() = maxX - minX + 1
     val width: Int get() = numColumns
     val height: Int get() = numRows
-    operator fun get(point: IntPoint): T
-    operator fun get(x: Int, y: Int): T
-    fun getOrDefault(x: Int, y: Int, default: () -> T): T
-    fun getOrDefault(point: IntPoint, default: () -> T): T
+
     fun getOrNull(x: Int, y: Int): T?
+    operator fun get(point: IntPoint): T = getOrNull(point.x, point.y)!!
+    operator fun get(x: Int, y: Int): T = getOrNull(x, y)!!
+    fun getOrDefault(point: IntPoint, default: () -> T) = getOrNull(point.x, point.y) ?: default()
+    fun getOrDefault(x: Int, y: Int, default: () -> T) = getOrNull(x, y) ?: default()
     fun getRow(y: Int): List<T> {
         require(y in 0 until numRows)
         val data = mutableListOf<T>()
@@ -17,6 +23,13 @@ public interface Grid<T> {
             data.add(get(it, y))
         }
         return data
+    }
+
+    fun isNearEnclosingBoundary(x: Int, y: Int): Boolean {
+        return !contains(x - 1, y) ||
+                !contains(x + 1, y) ||
+                !contains(x, y - 1) ||
+                !contains(x, y + 1)
     }
 
     fun getColumn(x: Int): List<T> {
@@ -48,7 +61,11 @@ public interface Grid<T> {
     }
 
     operator fun contains(point: IntPoint): Boolean {
-        return point.x in 0..<width && point.y in 0..<height
+        return contains(point.x, point.y)
+    }
+
+    fun contains(x: Int, y: Int): Boolean {
+        return x in 0..<width && y in 0..<height
     }
 
     private fun getAdjacentInternal(x: Int, y: Int, direction: Direction): PointWithData<T>? {
@@ -73,11 +90,22 @@ public interface Grid<T> {
     }
 }
 
+
 inline fun <T> Grid<T>.forEach(fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
     repeat(numRows) { y ->
         var isFirst = true
         repeat(numColumns) { x ->
             fn(x, y, get(x, y), isFirst)
+            isFirst = false
+        }
+    }
+}
+
+inline fun <T> Grid<T>.forEachWithDefault(defaultValue: T, fn: (x: Int, y: Int, value: T, isFirstElementInNewRow: Boolean) -> Unit) {
+    repeat(numRows) { y ->
+        var isFirst = true
+        repeat(numColumns) { x ->
+            fn(x, y, getOrDefault(x, y){defaultValue}, isFirst)
             isFirst = false
         }
     }

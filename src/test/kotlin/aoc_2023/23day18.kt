@@ -1,6 +1,12 @@
 package aoc_2023
 
 import com.kietyo.ktruth.assertThat
+import utils.Direction
+import utils.IntPoint
+import utils.MutableListGrid
+import utils.forEach
+import utils.forEachWithDefault
+import utils.toip
 import kotlin.test.Test
 
 internal class `23day18` {
@@ -12,7 +18,7 @@ internal class `23day18` {
     }
 
     data class Instruction(
-        val dir: Char,
+        val dir: Direction,
         val num: Int,
         val hex: String
     )
@@ -25,9 +31,51 @@ internal class `23day18` {
         val instructions = converted.map {
             val match = regex.matchEntire(it)
             val (dir, numString, hex) = match!!.destructured
-            Instruction(dir.first(), numString.toInt(), hex)
+            Instruction(
+                when (dir.first()) {
+                    'U' -> Direction.UP
+                    'D' -> Direction.DOWN
+                    'L' -> Direction.LEFT
+                    'R' -> Direction.RIGHT
+                    else -> TODO()
+                }, numString.toInt(), hex
+            )
         }
         println(instructions)
+
+        val grid = MutableListGrid<Char>('.')
+        var current = IntPoint(0, 0)
+        for (instruction in instructions) {
+            for (i in 0 until instruction.num) {
+                current += instruction.dir
+                grid.put(current.x, current.y, '#')
+            }
+        }
+
+        val openSpacePoints = mutableListOf<IntPoint>()
+
+        println(grid)
+        while (true) {
+            var wasChanged = false
+            grid.forEachWithDefault('.') { x, y, value, isFirstElementInNewRow ->
+                if (x toip y in openSpacePoints) return@forEachWithDefault
+                if (value == '.') {
+                    if (grid.isNearEnclosingBoundary(x, y) ||
+                        grid.getAdjacents(x, y, includeDiagonals = false).any {
+                            it.x toip it.y in openSpacePoints
+                        }) {
+                        wasChanged = true
+                        grid.put(x, y, '0')
+                        openSpacePoints.add(x toip y)
+                    }
+                }
+            }
+            if (!wasChanged) {
+                break
+            }
+        }
+
+        println(grid)
 
         return 0
     }

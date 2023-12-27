@@ -228,7 +228,7 @@ internal class `23day10` {
             val newOutPoints = wideGrid.filter  { x, y, value ->
                 if (value in pipeChars) return@filter false
                 if (x toip y in wideGridOutPoints) return@filter false
-                if (wideGrid.isNearWall(x, y)) return@filter true
+                if (wideGrid.isNearEnclosingBoundary(x, y)) return@filter true
 
                 connectsToOpenSpace(x, y, Direction.DOWN) ||
                 connectsToOpenSpace(x, y, Direction.UP) ||

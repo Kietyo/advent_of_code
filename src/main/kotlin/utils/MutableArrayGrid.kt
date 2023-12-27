@@ -23,8 +23,10 @@ data class PointWithData<T>(
 class MutableArrayGrid<T : Any>(
     val data: List<Array<T>>
 ): Grid<T> {
-    override val numRows = data.size
-    override val numColumns = data.maxOf { it.size }
+    override val minX: Int get() = 0
+    override val maxX: Int get() = data.maxOf { it.size }-1
+    override val minY: Int get() = 0
+    override val maxY: Int get() = data.size-1
 
     init {
 //        println("numRows: $numRows, numColumns: $numColumns")
@@ -109,16 +111,6 @@ class MutableArrayGrid<T : Any>(
         }
         return allPoints
     }
-
-
-
-    fun isNearWall(x: Int, y: Int): Boolean {
-        return getOrNull(x - 1, y) == null ||
-            getOrNull(x + 1, y) == null ||
-            getOrNull(x, y - 1) == null ||
-            getOrNull(x, y + 1) == null
-    }
-
 
 
     fun copy() = MutableArrayGrid(data.map { it.clone() })
