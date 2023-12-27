@@ -273,6 +273,12 @@ fun LongRange.intersectsWith(other: LongRange): Boolean {
     return secondRange.first in firstRange
 }
 
+fun IntRange.intersectsWith(other: IntRange): Boolean {
+    val firstRange = if (first <= other.first) this else other
+    val secondRange = if (first <= other.first) other else this
+    return secondRange.first in firstRange
+}
+
 fun LongRange.intersectRangeOrNull(other: LongRange): LongRange? {
     if (this.intersectsWith(other)) {
         val firstRange = if (first <= other.first) this else other
