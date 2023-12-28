@@ -4,6 +4,7 @@ class Range(
     t1: IntPoint,
     t2: IntPoint
 ) {
+    constructor(p: IntPoint): this(p, p)
     val p1: IntPoint
     val p2: IntPoint
     val range: Int get() = (p2.x - p1.x) + (p2.y - p1.y) + 1
@@ -36,8 +37,18 @@ class Range(
         }
     }
 
+    fun getPointRange(x: Int, y: Int): Range {
+        require(contains(x, y))
+        return Range(x toip y, x toip y)
+    }
+    fun getPointRangeY(y: Int): Range {
+        require(isVerticalRange && containsY(y))
+        return Range(minX toip y, minX toip y)
+    }
     operator fun contains(p: IntPoint) = contains(p.x, p.y)
-    fun contains(x: Int, y: Int) = x in p1.x..p2.x && y in p1.y..p2.y
+    fun contains(x: Int, y: Int) = containsX(x) && containsY(y)
+    fun containsX(x: Int) = x in p1.x..p2.x
+    fun containsY(y: Int) = y in p1.y..p2.y
 
     fun intersectsWith(other: Range): Boolean {
         return when {
@@ -67,28 +78,51 @@ class Range(
         }
     }
 
+    fun isTouchingButNotIntersectingVertically(other: Range): Boolean {
+        require(isVerticalRange)
+        if (!other.isVerticalRange) return false
+        return (this.yRange.intersectsWith(other.yRange) &&
+                (other.minX == minX + 1 || other.minX == minX - 1)) ||
+                (minX == other.minX && (
+                        maxY + 1 == other.minY ||
+                                minY - 1 == other.maxY
+                        ))
+    }
+
+    fun isTouchingButNotIntersectingHorizontally(other: Range): Boolean {
+        require(isHorizontalRange && other.isHorizontalRange)
+        return (this.xRange.intersectsWith(other.xRange) &&
+                (other.minY == minY + 1 || other.minY == minY - 1)) ||
+                (minY == other.minY && (
+                        maxX + 1 == other.minX ||
+                                minX - 1 == other.maxX
+                        ))
+    }
+
     fun isTouchingButNotIntersecting(other: Range): Boolean {
         return when {
+            isVerticalRange && isHorizontalRange ->
+                isTouchingButNotIntersectingVertically(other) || isTouchingButNotIntersectingHorizontally(other)
             isVerticalRange -> {
                 when {
                     other.isVerticalRange -> {
-                        this.yRange.intersectsWith(other.yRange) &&
-                                (other.minX == minX+1 || other.minX == minX-1)
+                        isTouchingButNotIntersectingVertically(other)
                     }
                     other.isHorizontalRange -> TODO()
                     else -> TODO()
                 }
             }
+
             isHorizontalRange -> {
                 when {
                     other.isHorizontalRange -> {
-                        this.xRange.intersectsWith(other.xRange) &&
-                                (other.minY == minY+1 || other.minY == minY-1)
+                        isTouchingButNotIntersectingHorizontally(other)
                     }
                     other.isVerticalRange -> TODO()
                     else -> TODO()
                 }
             }
+
             else -> TODO()
         }
     }

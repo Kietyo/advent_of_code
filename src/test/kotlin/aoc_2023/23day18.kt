@@ -68,7 +68,7 @@ internal class `23day18` {
             current = end
         }
 
-//        println(grid)
+        println(grid)
         println("width: ${grid.width}")
         println("height: ${grid.height}")
 
@@ -150,6 +150,106 @@ internal class `23day18` {
 
         println(numWalls + sumInner)
         return numWalls + sumInner
+    }
+
+    private fun internalCalculateV2(instructions: List<Instruction>): Long {
+        var numWalls = 0L
+        val grid = MutableRangeGrid()
+        var current = IntPoint(0, 0)
+        for (instruction in instructions) {
+            val dir = instruction.dir
+            val distance = instruction.distance
+            val vector = dir.movementOffset * (distance - 1)
+            val start = current + dir
+            val end = start + vector
+            val r = Range(start, end)
+            grid.add(r)
+            numWalls += r.range
+            current = end
+        }
+
+        println(grid)
+        println("width: ${grid.width}")
+        println("height: ${grid.height}")
+
+        val horizontalRanges = mutableListOf<Range>()
+        for (y in grid.minY..grid.maxY) {
+            var currStart: IntPoint? = null
+            for (x in grid.minX..grid.maxX) {
+                val currValue = grid.getOrDefault(x, y) { false }
+                if (currValue) {
+                    if (currStart != null) {
+                        horizontalRanges.add(Range(currStart, IntPoint(x - 1, y)))
+                        currStart = null
+                    }
+                } else {
+                    if (currStart == null) {
+                        currStart = IntPoint(x, y)
+                    }
+                }
+            }
+            if (currStart != null) {
+                horizontalRanges.add(Range(currStart, IntPoint(grid.maxX, y)))
+            }
+        }
+        println("horizontalRanges: $horizontalRanges")
+
+        val verticalRanges = mutableListOf<Range>()
+        for (x in grid.minX..grid.maxX) {
+            var currStart: IntPoint? = null
+            for (y in grid.minY..grid.maxY) {
+                val currValue = grid.getOrDefault(x, y) { false }
+                if (currValue) {
+                    if (currStart != null) {
+                        verticalRanges.add(Range(currStart, IntPoint(x, y-1)))
+                        currStart = null
+                    }
+                } else {
+                    if (currStart == null) {
+                        currStart = IntPoint(x, y)
+                    }
+                }
+            }
+            if (currStart != null) {
+                verticalRanges.add(Range(currStart, IntPoint(x, grid.maxY)))
+            }
+        }
+        println(verticalRanges)
+
+//        val matchingRange = horizontalRanges.first { pointInInner in it }
+//        println(matchingRange)
+//
+//        val horizontalInnerRanges = mutableSetOf(matchingRange)
+//        val verticalInnerRanges = mutableSetOf<Range>()
+//        while (true) {
+//            val prevHorizontalSize = horizontalInnerRanges.size
+//            val prevVerticalSize = verticalInnerRanges.size
+//            for (range in verticalRanges) {
+//                if (horizontalInnerRanges.any { it.intersectsWith(range) }) {
+//                    verticalInnerRanges.add(range)
+//                }
+//            }
+//
+//            for (range in horizontalRanges) {
+//                if (verticalInnerRanges.any { it.intersectsWith(range) }) {
+//                    horizontalInnerRanges.add(range)
+//                }
+//            }
+//
+//            if (prevHorizontalSize == horizontalInnerRanges.size &&
+//                prevVerticalSize == verticalInnerRanges.size) {
+//                break
+//            }
+//        }
+//        println(horizontalInnerRanges)
+//        println(verticalInnerRanges)
+//        println(numWalls)
+//
+//        val sumInner = horizontalInnerRanges.sumOf { it.range }
+//        println(sumInner)
+//
+//        println(numWalls + sumInner)
+        return 0
     }
 
     private fun part1Calculation(input: List<String>, pointInInner: IntPoint): Long {

@@ -1,23 +1,34 @@
 package utils
 
 class MutableRangeGrid: Grid<Boolean> {
-    val ranges = mutableListOf<Range>()
+    private val _ranges = mutableListOf<Range>()
+    val ranges: List<Range> get() = _ranges
 
     override val minX: Int
-        get() = ranges.minOf { it.minX }
+        get() = _ranges.minOf { it.minX }
     override val maxX: Int
-        get() = ranges.maxOf { it.maxX }
+        get() = _ranges.maxOf { it.maxX }
     override val minY: Int
-        get() = ranges.minOf { it.minY }
+        get() = _ranges.minOf { it.minY }
     override val maxY: Int
-        get() = ranges.maxOf { it.maxY }
+        get() = _ranges.maxOf { it.maxY }
 
     override fun getOrNull(x: Int, y: Int): Boolean {
-        return ranges.any { it.contains(x, y) }
+        return _ranges.any { it.contains(x, y) }
     }
 
     fun add(r: Range) {
-        ranges.add(r)
+        _ranges.add(r)
+    }
+
+    fun getHorizontalRanges(y: Int) {
+        val horizontalRanges = mutableListOf<Range>()
+        val ranges = ranges.filter { it.containsY(y) }.sortedBy { it.minX }
+
+        var currRange = ranges.first()
+        if (currRange.isVerticalRange) {
+            currRange = currRange.getPointRangeY(y)
+        }
     }
 
     override fun toString(): String {

@@ -129,12 +129,33 @@ internal class RangeTest {
             Range(0 toip 0, 0 toip 4)
         )).isFalse()
 
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(0 toip 5)
+        )).isTrue()
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(0 toip -1)
+        )).isTrue()
+
         // horizontal line
         assertThat(Range(0 toip 0, 4 toip 0).isTouchingButNotIntersecting(
             Range(0 toip 1, 4 toip 1)
         )).isTrue()
         assertThat(Range(0 toip 0, 4 toip 0).isTouchingButNotIntersecting(
             Range(0 toip -1, 4 toip -1)
+        )).isTrue()
+
+        assertThat(Range(0 toip 0, 4 toip 0).isTouchingButNotIntersecting(
+            Range(5 toip 0)
+        )).isTrue()
+        assertThat(Range(0 toip 0, 4 toip 0).isTouchingButNotIntersecting(
+            Range(-1 toip 0)
+        )).isTrue()
+
+        assertThat(Range(5 toip 0).isTouchingButNotIntersecting(
+            Range(0 toip 0, 4 toip 0)
+        )).isTrue()
+        assertThat(Range(-1 toip 0).isTouchingButNotIntersecting(
+            Range(0 toip 0, 4 toip 0)
         )).isTrue()
     }
 }
