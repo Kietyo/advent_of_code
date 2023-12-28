@@ -89,4 +89,52 @@ internal class RangeTest {
         assertThat(Range(0 toip 0, 0 toip 4)
             .intersectsWith(Range(1 toip 2, 2 toip 2))).isFalse()
     }
+
+    @Test
+    fun isTouching() {
+        // vertical line
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(1 toip 0, 1 toip 4)
+        )).isTrue()
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(-1 toip 0, -1 toip 4)
+        )).isTrue()
+
+        assertThat(Range(1 toip 0, 1 toip 4).isTouchingButNotIntersecting(
+            Range(0 toip 0, 0 toip 4)
+        )).isTrue()
+        assertThat(Range(-1 toip 0, -1 toip 4).isTouchingButNotIntersecting(
+            Range(0 toip 0, 0 toip 4)
+        )).isTrue()
+
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(1 toip 0, 1 toip 0)
+        )).isTrue()
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(1 toip 0, 1 toip 1)
+        )).isTrue()
+
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(-1 toip 0, -1 toip 0)
+        )).isTrue()
+
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(-2 toip 0, -2 toip 0)
+        )).isFalse()
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(2 toip 0, 2 toip 0)
+        )).isFalse()
+
+        assertThat(Range(0 toip 0, 0 toip 4).isTouchingButNotIntersecting(
+            Range(0 toip 0, 0 toip 4)
+        )).isFalse()
+
+        // horizontal line
+        assertThat(Range(0 toip 0, 4 toip 0).isTouchingButNotIntersecting(
+            Range(0 toip 1, 4 toip 1)
+        )).isTrue()
+        assertThat(Range(0 toip 0, 4 toip 0).isTouchingButNotIntersecting(
+            Range(0 toip -1, 4 toip -1)
+        )).isTrue()
+    }
 }

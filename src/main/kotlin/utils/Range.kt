@@ -67,6 +67,32 @@ class Range(
         }
     }
 
+    fun isTouchingButNotIntersecting(other: Range): Boolean {
+        return when {
+            isVerticalRange -> {
+                when {
+                    other.isVerticalRange -> {
+                        this.yRange.intersectsWith(other.yRange) &&
+                                (other.minX == minX+1 || other.minX == minX-1)
+                    }
+                    other.isHorizontalRange -> TODO()
+                    else -> TODO()
+                }
+            }
+            isHorizontalRange -> {
+                when {
+                    other.isHorizontalRange -> {
+                        this.xRange.intersectsWith(other.xRange) &&
+                                (other.minY == minY+1 || other.minY == minY-1)
+                    }
+                    other.isVerticalRange -> TODO()
+                    else -> TODO()
+                }
+            }
+            else -> TODO()
+        }
+    }
+
 
     override fun toString(): String = "(${p1.x},${p1.y})..(${p2.x},${p2.y})"
 

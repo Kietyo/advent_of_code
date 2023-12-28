@@ -52,8 +52,8 @@ internal class `23day18` {
         println(res)
     }
 
-    private fun internalCalculate(instructions: List<Instruction>, pointInInner: IntPoint): Int {
-        var numWalls = 0
+    private fun internalCalculate(instructions: List<Instruction>, pointInInner: IntPoint): Long {
+        var numWalls = 0L
         val grid = MutableRangeGrid()
         var current = IntPoint(0, 0)
         for (instruction in instructions) {
@@ -68,7 +68,9 @@ internal class `23day18` {
             current = end
         }
 
-        println(grid)
+//        println(grid)
+        println("width: ${grid.width}")
+        println("height: ${grid.height}")
 
         val horizontalRanges = mutableListOf<Range>()
         for (y in grid.minY..grid.maxY) {
@@ -150,7 +152,7 @@ internal class `23day18` {
         return numWalls + sumInner
     }
 
-    private fun part1Calculation(input: List<String>, pointInInner: IntPoint): Int {
+    private fun part1Calculation(input: List<String>, pointInInner: IntPoint): Long {
         val converted = input.convertToDataObjectList()
 
         println(converted)
@@ -174,7 +176,7 @@ internal class `23day18` {
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    private fun part2Calculation(input: List<String>, pointInInner: IntPoint): Int {
+    private fun part2Calculation(input: List<String>, pointInInner: IntPoint): Long {
         val converted = input.convertToDataObjectList()
 
         println(converted)
