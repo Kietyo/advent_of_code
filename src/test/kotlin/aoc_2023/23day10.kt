@@ -239,6 +239,8 @@ internal class `23day10` {
             wideGridOutPoints.addAll(newOutPoints)
         }
 
+        // y=-207
+
         wideGridOutPoints.forEach {
             wideGrid[it.x, it.y] = 'O'
         }

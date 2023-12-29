@@ -147,4 +147,18 @@ class Range(
         result = 31 * result + p2.hashCode()
         return result
     }
+
+    fun combine(other: Range): Range {
+        if (isHorizontalRange && other.isHorizontalRange && isTouchingButNotIntersectingHorizontally(
+                other
+            ) &&
+            minY == other.minY
+        ) {
+            return Range(
+                minOf(minX, other.minX) toip minY,
+                maxOf(maxX, other.maxX) toip minY
+            )
+        }
+        TODO()
+    }
 }

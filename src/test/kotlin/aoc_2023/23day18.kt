@@ -172,84 +172,86 @@ internal class `23day18` {
         println("width: ${grid.width}")
         println("height: ${grid.height}")
 
-        val horizontalRanges = mutableListOf<Range>()
+        // 32 -> 58
+        // 9          6       11
+        // ######### ...... ###########
+        //             8         15               1
+        // # ....... ######## .... .... .... ... #
+
+        //    9            1        15           13
+        // #.......#......#.... .... .... ... #### #### #### #
+        var sum = 0L
         for (y in grid.minY..grid.maxY) {
-            var currStart: IntPoint? = null
-            for (x in grid.minX..grid.maxX) {
-                val currValue = grid.getOrDefault(x, y) { false }
-                if (currValue) {
-                    if (currStart != null) {
-                        horizontalRanges.add(Range(currStart, IntPoint(x - 1, y)))
-                        currStart = null
-                    }
-                } else {
-                    if (currStart == null) {
-                        currStart = IntPoint(x, y)
-                    }
+            val currLine = grid.getLineString(y)
+            println(currLine)
+            val horizontalRanges = grid.getHorizontalRanges(y)
+            var left: Range? = null
+            for ((i, range) in horizontalRanges.withIndex()) {
+                if (left == null) {
+                    left = range
+                    continue
                 }
+
+                sum += left.range + (range.minX-1 - left.maxX)
+                if ((horizontalRanges.size - (i + 1)) % 2 == 0) {
+                    sum += range.range
+                    left = null
+                } else {
+                    left = range
+                }
+
+//                if (range.range == 1) {
+//                    sum += left.range + range.range + (range.minX-1 - left.maxX)
+//                    left = null
+//                } else {
+//
+//                    if ((horizontalRanges.size - (i + 1)) % 2 == 0) {
+//                        sum += range.range
+//                        left = null
+//                    } else {
+//                        left = range
+//                    }
+//                }
             }
-            if (currStart != null) {
-                horizontalRanges.add(Range(currStart, IntPoint(grid.maxX, y)))
+            if (left != null) {
+                sum += left.range
             }
         }
-        println("horizontalRanges: $horizontalRanges")
 
-        val verticalRanges = mutableListOf<Range>()
-        for (x in grid.minX..grid.maxX) {
-            var currStart: IntPoint? = null
-            for (y in grid.minY..grid.maxY) {
-                val currValue = grid.getOrDefault(x, y) { false }
-                if (currValue) {
-                    if (currStart != null) {
-                        verticalRanges.add(Range(currStart, IntPoint(x, y-1)))
-                        currStart = null
-                    }
-                } else {
-                    if (currStart == null) {
-                        currStart = IntPoint(x, y)
-                    }
-                }
-            }
-            if (currStart != null) {
-                verticalRanges.add(Range(currStart, IntPoint(x, grid.maxY)))
-            }
+        println(sum)
+
+        return sum
+    }
+
+    private fun internalCalculateV3(instructions: List<Instruction>): Long {
+        var sum = 0L
+        var numWalls = 0L
+        val grid = MutableRangeGrid()
+        var current = IntPoint(0, 0)
+        for (instruction in instructions) {
+            val dir = instruction.dir
+            val distance = instruction.distance
+            val vector = dir.movementOffset * (distance - 1)
+            val start = current + dir
+            val end = start + vector
+            val r = Range(start, end)
+            grid.add(r)
+            numWalls += r.range
+            current = end
+            val widthOffset = if (start.x < end.x) -1 else 1
+            val width = if (r.isVerticalRange) 1 else (start.x - end.x + widthOffset)
+            val height = if (r.isHorizontalRange) (end.y + 1) else (end.y + 1)
+            val currSum = width * height
+            sum += currSum
         }
-        println(verticalRanges)
 
-//        val matchingRange = horizontalRanges.first { pointInInner in it }
-//        println(matchingRange)
-//
-//        val horizontalInnerRanges = mutableSetOf(matchingRange)
-//        val verticalInnerRanges = mutableSetOf<Range>()
-//        while (true) {
-//            val prevHorizontalSize = horizontalInnerRanges.size
-//            val prevVerticalSize = verticalInnerRanges.size
-//            for (range in verticalRanges) {
-//                if (horizontalInnerRanges.any { it.intersectsWith(range) }) {
-//                    verticalInnerRanges.add(range)
-//                }
-//            }
-//
-//            for (range in horizontalRanges) {
-//                if (verticalInnerRanges.any { it.intersectsWith(range) }) {
-//                    horizontalInnerRanges.add(range)
-//                }
-//            }
-//
-//            if (prevHorizontalSize == horizontalInnerRanges.size &&
-//                prevVerticalSize == verticalInnerRanges.size) {
-//                break
-//            }
-//        }
-//        println(horizontalInnerRanges)
-//        println(verticalInnerRanges)
-//        println(numWalls)
-//
-//        val sumInner = horizontalInnerRanges.sumOf { it.range }
-//        println(sumInner)
-//
-//        println(numWalls + sumInner)
-        return 0
+        println(grid)
+        println("width: ${grid.width}")
+        println("height: ${grid.height}")
+        println("numWalls: $numWalls")
+        println("sum: $sum")
+
+        return sum
     }
 
     private fun part1Calculation(input: List<String>, pointInInner: IntPoint): Long {
@@ -272,7 +274,7 @@ internal class `23day18` {
         }
         println(instructions)
 
-        return internalCalculate(instructions, pointInInner)
+        return internalCalculateV3(instructions)
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -300,13 +302,19 @@ internal class `23day18` {
         }
         println(instructions.joinToString("\n"))
 
-        return internalCalculate(instructions, pointInInner)
+        return internalCalculateV2(instructions)
     }
 
     @Test
     fun part1Test() {
         val input = readInput(testFileName)
         assertThat(part1Calculation(input, 1 toip 1)).isEqualTo(62)
+    }
+
+    @Test
+    fun part1Test2() {
+        val input = readInput("day18_test2")
+        assertThat(part1Calculation(input, 1 toip 1)).isEqualTo(18)
     }
 
     @Test

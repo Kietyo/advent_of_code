@@ -158,4 +158,12 @@ internal class RangeTest {
             Range(0 toip 0, 4 toip 0)
         )).isTrue()
     }
+
+    @Test
+    fun combine() {
+        assertThat(Range(5 toip 0).combine(Range(0 toip 0, 4 toip 0)))
+            .isEqualTo(Range(0 toip 0, 5 toip 0))
+        assertThat(Range(0 toip 0, 4 toip 0).combine(Range(5 toip 0)))
+            .isEqualTo(Range(0 toip 0, 5 toip 0))
+    }
 }

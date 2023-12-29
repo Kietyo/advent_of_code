@@ -21,26 +21,57 @@ class MutableRangeGrid: Grid<Boolean> {
         _ranges.add(r)
     }
 
-    fun getHorizontalRanges(y: Int) {
+    fun getHorizontalRanges(y: Int): List<Range> {
         val horizontalRanges = mutableListOf<Range>()
         val ranges = ranges.filter { it.containsY(y) }.sortedBy { it.minX }
 
-        var currRange = ranges.first()
-        if (currRange.isVerticalRange) {
-            currRange = currRange.getPointRangeY(y)
+        var currRange: Range? = null
+        for (range in ranges) {
+            if (range.isHorizontalRange) {
+                if (currRange == null) {
+                    currRange = range
+                    continue
+                }
+                if (currRange.isTouchingButNotIntersecting(range)) {
+                    currRange = currRange.combine(range)
+                } else {
+                    horizontalRanges.add(currRange)
+                    currRange = range
+                }
+            } else {
+                val pointRangeY = range.getPointRangeY(y)
+                if (currRange == null) {
+                    currRange = pointRangeY
+                    continue
+                }
+                if (pointRangeY.isTouchingButNotIntersecting(currRange)) {
+                    currRange = currRange.combine(pointRangeY)
+                } else {
+                    horizontalRanges.add(currRange)
+                    currRange = pointRangeY
+                }
+            }
         }
+        if (currRange != null) {
+            horizontalRanges.add(currRange)
+        }
+        return horizontalRanges
     }
 
     override fun toString(): String {
         val sb = StringBuilder()
         for (y in minY..maxY) {
-            val currLineSb = StringBuilder()
-            for (x in minX..maxX) {
-                val char = if (getOrDefault(x, y) {false}) '#' else '.'
-                currLineSb.append(char)
-            }
-            sb.appendLine(currLineSb)
+            sb.appendLine(getLineString(y))
         }
         return sb.toString()
+    }
+
+    fun getLineString(y: Int): String {
+        val currLineSb = StringBuilder()
+        for (x in minX..maxX) {
+            val char = if (getOrDefault(x, y) {false}) '#' else '.'
+            currLineSb.append(char)
+        }
+        return currLineSb.toString()
     }
 }
