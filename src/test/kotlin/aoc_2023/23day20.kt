@@ -25,12 +25,14 @@ internal class `23day20` {
             if (lowInputs.isEmpty() && highInputs.isNotEmpty()) return PulseType.LOW
             return PulseType.HIGH
         }
+
         fun updateState(input: Int, pulse: PulseType) {
             when (pulse) {
                 PulseType.LOW -> if (input in lowInputs) Unit else {
                     lowInputs += input
                     highInputs -= input
                 }
+
                 PulseType.HIGH -> if (input in highInputs) Unit else {
                     lowInputs -= input
                     highInputs += input
@@ -41,7 +43,7 @@ internal class `23day20` {
 
     data class State(
         val onFlipFlopModules: BooleanArray,
-        val conjunctionModulesState: Map<Int, ConjunctionModuleState>,
+        val conjunctionModulesState: Array<ConjunctionModuleState?>,
     ) {
         fun getPulseOfFlipFlopModule(module: Int): PulseType {
             return if (onFlipFlopModules[module]) PulseType.LOW else PulseType.HIGH
@@ -51,7 +53,11 @@ internal class `23day20` {
             return conjunctionModulesState[module]!!.getPulse()
         }
 
-        fun updateConjunctionModuleState(conjunctionModule: Int, inputModule: Int, pulse: PulseType) {
+        fun updateConjunctionModuleState(
+            conjunctionModule: Int,
+            inputModule: Int,
+            pulse: PulseType
+        ) {
             conjunctionModulesState[conjunctionModule]!!.updateState(inputModule, pulse)
         }
 
@@ -74,8 +80,9 @@ internal class `23day20` {
         private var currId = 0
         private val nameToId = mutableMapOf<String, Int>()
         fun getOrCreateId(name: String): Int {
-            return nameToId.computeIfAbsent(name) { currId++}
+            return nameToId.computeIfAbsent(name) { currId++ }
         }
+
         fun maxId() = currId
     }
 
@@ -84,8 +91,8 @@ internal class `23day20` {
         private var flipFlopModuleToReceiversOptimized = Array(0) { IntArray(0) }
         private var conjunctionModuleToReceiversOptimized = Array(0) { IntArray(0) }
         private var conjunctionModuleToInputsOptimized = Array(0) { IntArray(0) }
-        var numLowPulsesSent  = 0
-        var numHighPulsesSent  = 0
+        var numLowPulsesSent = 0
+        var numHighPulsesSent = 0
 
         private val BROADCASTER_STRING = "broadcaster"
         private val BROADCASTER_ID = IdGenerator.getOrCreateId(BROADCASTER_STRING)
@@ -105,7 +112,9 @@ internal class `23day20` {
                 val (part1, part2) = it.split(" -> ")
                 println("$part1, $part2")
                 when {
-                    part1 == "broadcaster" -> broadcasterReceivers = part2.split(", ").map { IdGenerator.getOrCreateId(it) }.toIntArray()
+                    part1 == "broadcaster" -> broadcasterReceivers =
+                        part2.split(", ").map { IdGenerator.getOrCreateId(it) }.toIntArray()
+
                     part1.startsWith("%") -> flipFlopModuleToReceivers.put(
                         IdGenerator.getOrCreateId(part1.drop(1)),
                         part2.split(", ").map { IdGenerator.getOrCreateId(it) }
@@ -151,11 +160,13 @@ internal class `23day20` {
             }
 
             conjunctionModuleToReceiversOptimized = Array(IdGenerator.maxId()) {
-                conjunctionModuleToReceivers.get(it)?.toIntArray() ?: IntArray(0)
+                conjunctionModuleToReceivers.get(it)?.toIntArray()
+                    ?: IntArray(0)
             }
 
             conjunctionModuleToInputsOptimized = Array(IdGenerator.maxId()) {
-                conjunctionModuleToInputs.get(it)?.toIntArray() ?: IntArray(0)
+                conjunctionModuleToInputs.get(it)?.toIntArray()
+                    ?: IntArray(0)
             }
 
             println("broadcasterReceivers: $broadcasterReceivers")
@@ -216,13 +227,19 @@ internal class `23day20` {
                                 }
                                 currState.updateStateWithFlipFlopToggled(currPulse.receiver)
                             }
+
                             PulseType.HIGH -> Unit
                         }
                     }
 
                     conjunctionModuleToReceiversOptimized[currPulse.receiver].isNotEmpty() -> {
-                        currState.updateConjunctionModuleState(currPulse.receiver, currPulse.sender, currPulse.pulseType)
-                        val nextReceivers = conjunctionModuleToReceiversOptimized[currPulse.receiver]
+                        currState.updateConjunctionModuleState(
+                            currPulse.receiver,
+                            currPulse.sender,
+                            currPulse.pulseType
+                        )
+                        val nextReceivers =
+                            conjunctionModuleToReceiversOptimized[currPulse.receiver]
                         for (receiver in nextReceivers) {
                             val pulse = currState.getPulseOfConjunctionModule(currPulse.receiver)
                             pulses.add(Pulse(pulse, currPulse.receiver, receiver))
@@ -232,13 +249,16 @@ internal class `23day20` {
             }
         }
 
-        fun createInitialState() = State(BooleanArray(IdGenerator.maxId()), buildMap {
-            conjunctionModuleToInputsOptimized.forEachIndexed { index, ints ->
+        fun createInitialState() = State(
+            BooleanArray(IdGenerator.maxId()),
+            Array(IdGenerator.maxId()) {
+                val ints = conjunctionModuleToInputsOptimized[it]
                 if (ints.isNotEmpty()) {
-                    put(index, ConjunctionModuleState(ints.toMutableList(), mutableListOf()))
+                    ConjunctionModuleState(ints.toMutableList(), mutableListOf())
+                } else {
+                    null
                 }
-            }
-        })
+            })
 
         fun calculatePart1(): Long {
             val currState = createInitialState()
@@ -307,12 +327,12 @@ internal class `23day20` {
         assertThat(part1Calculation(input)).isEqualTo(949764474L)
     }
 
-//    @Test
-//    fun part2Test() {
-//        val input = readInput(testFileName)
-//        assertThat(part2Calculation(input)).isEqualTo(0)
-//    }
-//
+    //    @Test
+    //    fun part2Test() {
+    //        val input = readInput(testFileName)
+    //        assertThat(part2Calculation(input)).isEqualTo(0)
+    //    }
+    //
     @Test
     fun part2() {
         val input = readInput(fileName)
