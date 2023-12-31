@@ -1,6 +1,8 @@
 package aoc_2023
 
 import com.kietyo.ktruth.assertThat
+import java.util.LinkedList
+import java.util.Queue
 import kotlin.test.Test
 
 internal class `23day20` {
@@ -16,246 +18,145 @@ internal class `23day20` {
     }
 
     data class ConjunctionModuleState(
-        val lowInputs: List<String>,
-        val highInputs: List<String>
+        val lowInputs: MutableList<Int>,
+        val highInputs: MutableList<Int>
     ) {
         fun getPulse(): PulseType {
             if (lowInputs.isEmpty() && highInputs.isNotEmpty()) return PulseType.LOW
             return PulseType.HIGH
         }
-        fun updateState(input: String, pulse: PulseType): ConjunctionModuleState {
-            return when (pulse) {
-                PulseType.LOW -> if (input in lowInputs) this else ConjunctionModuleState(lowInputs + input, highInputs - input)
-                PulseType.HIGH -> if (input in highInputs) this else ConjunctionModuleState(lowInputs - input, highInputs + input)
+        fun updateState(input: Int, pulse: PulseType) {
+            when (pulse) {
+                PulseType.LOW -> if (input in lowInputs) Unit else {
+                    lowInputs += input
+                    highInputs -= input
+                }
+                PulseType.HIGH -> if (input in highInputs) Unit else {
+                    lowInputs -= input
+                    highInputs += input
+                }
             }
         }
     }
 
     data class State(
-        val onFlipFlopModules: List<String>,
-        val conjunctionModulesState: Map<String, ConjunctionModuleState>,
+        val onFlipFlopModules: MutableList<Int>,
+        val conjunctionModulesState: Map<Int, ConjunctionModuleState>,
     ) {
-        fun getPulseOfFlipFlopModule(module: String): PulseType {
+        fun getPulseOfFlipFlopModule(module: Int): PulseType {
             return if (module in onFlipFlopModules) PulseType.LOW else PulseType.HIGH
         }
 
-        fun getPulseOfConjunctionModule(module: String): PulseType {
+        fun getPulseOfConjunctionModule(module: Int): PulseType {
             return conjunctionModulesState[module]!!.getPulse()
         }
 
-        fun updateConjunctionModuleState(conjunctionModule: String, inputModule: String, pulse: PulseType): State {
-            return State(onFlipFlopModules, buildMap {
-                putAll(conjunctionModulesState)
-                put(conjunctionModule, get(conjunctionModule)!!.updateState(inputModule, pulse))
-            })
+        fun updateConjunctionModuleState(conjunctionModule: Int, inputModule: Int, pulse: PulseType) {
+            conjunctionModulesState[conjunctionModule]!!.updateState(inputModule, pulse)
         }
 
-        fun newStateWithFlipFlopToggled(module: String): State {
-            return if (module in onFlipFlopModules) {
-                State(onFlipFlopModules - module, conjunctionModulesState)
+        fun updateStateWithFlipFlopToggled(module: Int) {
+            if (module in onFlipFlopModules) {
+                onFlipFlopModules -= module
             } else {
-                State(onFlipFlopModules + module, conjunctionModulesState)
+                onFlipFlopModules += module
             }
         }
     }
 
     data class Pulse(
         val pulseType: PulseType,
-        val sender: String,
-        val receiver: String
+        val sender: Int,
+        val receiver: Int
     )
 
-    private fun part1Calculation(input: List<String>): Long {
-        val converted = input.convertToDataObjectList()
-        println(converted)
-
-        var broadcasterReceivers = emptyList<String>()
-        val flipFlopModuleToReceivers = mutableMapOf<String, List<String>>()
-        val conjunctionModuleToReceivers = mutableMapOf<String, List<String>>()
-
-        converted.forEach {
-            val (part1, part2) = it.split(" -> ")
-            println("$part1, $part2")
-            when {
-                part1 == "broadcaster" -> broadcasterReceivers = part2.split(", ")
-                part1.startsWith("%") -> flipFlopModuleToReceivers.put(
-                    part1.drop(1),
-                    part2.split(", ")
-                )
-
-                part1.startsWith("&") -> conjunctionModuleToReceivers.put(
-                    part1.drop(1),
-                    part2.split(", ")
-                )
-
-                else -> TODO()
-            }
+    object IdGenerator {
+        private var currId = 0
+        private val nameToId = mutableMapOf<String, Int>()
+        fun getOrCreateId(name: String): Int {
+            return nameToId.computeIfAbsent(name) { currId++}
         }
-
-        val conjunctionModuleToInputs = mutableMapOf<String, MutableList<String>>()
-        conjunctionModuleToReceivers.forEach {
-            conjunctionModuleToInputs.put(it.key, mutableListOf())
-        }
-
-        broadcasterReceivers.forEach {
-            if (it in conjunctionModuleToInputs) {
-                conjunctionModuleToInputs[it]!!.add("broadcaster")
-            }
-        }
-        flipFlopModuleToReceivers.forEach {
-            for (receiver in it.value) {
-                if (receiver in conjunctionModuleToInputs) {
-                    conjunctionModuleToInputs[receiver]!!.add(it.key)
-                }
-            }
-        }
-        conjunctionModuleToReceivers.forEach {
-            for (receiver in it.value) {
-                if (receiver in conjunctionModuleToInputs) {
-                    conjunctionModuleToInputs[receiver]!!.add(it.key)
-                }
-            }
-        }
-
-        println("broadcasterReceivers: $broadcasterReceivers")
-        println("flipFlopModuleToReceivers: $flipFlopModuleToReceivers")
-        println("conjunctionModuleToReceivers: $conjunctionModuleToReceivers")
-        println("conjunctionModuleToInputs: $conjunctionModuleToInputs")
-
-        var numLowPulsesSent  = 0
-        var numHighPulsesSent  = 0
-
-        var currState = State(emptyList(), buildMap {
-            conjunctionModuleToInputs.forEach {
-                put(it.key, ConjunctionModuleState(it.value, emptyList()))
-            }
-        })
-        repeat(1000) {
-            val pulses = mutableListOf(Pulse(PulseType.LOW, "button", "broadcaster"))
-
-            while (pulses.isNotEmpty()) {
-                val currPulse = pulses.removeFirst()
-                when (currPulse.pulseType) {
-                    PulseType.LOW -> numLowPulsesSent++
-                    PulseType.HIGH -> numHighPulsesSent++
-                }
-//                println(currPulse)
-                when {
-                    currPulse.receiver == "broadcaster" -> {
-                        for (receiver in broadcasterReceivers) {
-                            pulses.add(Pulse(currPulse.pulseType, currPulse.receiver, receiver))
-                        }
-                    }
-
-                    flipFlopModuleToReceivers.contains(currPulse.receiver) -> {
-                        val nextReceivers = flipFlopModuleToReceivers[currPulse.receiver]!!
-                        when (currPulse.pulseType) {
-                            PulseType.LOW -> {
-                                for (receiver in nextReceivers) {
-                                    pulses.add(
-                                        Pulse(
-                                            currState.getPulseOfFlipFlopModule(currPulse.receiver),
-                                            currPulse.receiver,
-                                            receiver
-                                        )
-                                    )
-                                }
-                                currState = currState.newStateWithFlipFlopToggled(currPulse.receiver)
-                            }
-                            PulseType.HIGH -> Unit
-                        }
-                    }
-
-                    conjunctionModuleToReceivers.contains(currPulse.receiver) -> {
-                        currState = currState.updateConjunctionModuleState(currPulse.receiver, currPulse.sender, currPulse.pulseType)
-                        val nextReceivers = conjunctionModuleToReceivers[currPulse.receiver]!!
-                        for (receiver in nextReceivers) {
-                            val pulse = currState.getPulseOfConjunctionModule(currPulse.receiver)
-                            pulses.add(Pulse(pulse, currPulse.receiver, receiver))
-                        }
-                    }
-                }
-            }
-        }
-
-        println("numLowPulsesSent: $numLowPulsesSent")
-        println("numHighPulsesSent: $numHighPulsesSent")
-
-        return numLowPulsesSent.toLong() * numHighPulsesSent
     }
 
-    private fun part2Calculation(input: List<String>): Int {
-        val converted = input.convertToDataObjectList()
-        println(converted)
-
-        var broadcasterReceivers = emptyList<String>()
-        val flipFlopModuleToReceivers = mutableMapOf<String, List<String>>()
-        val conjunctionModuleToReceivers = mutableMapOf<String, List<String>>()
-
-        converted.forEach {
-            val (part1, part2) = it.split(" -> ")
-            println("$part1, $part2")
-            when {
-                part1 == "broadcaster" -> broadcasterReceivers = part2.split(", ")
-                part1.startsWith("%") -> flipFlopModuleToReceivers.put(
-                    part1.drop(1),
-                    part2.split(", ")
-                )
-
-                part1.startsWith("&") -> conjunctionModuleToReceivers.put(
-                    part1.drop(1),
-                    part2.split(", ")
-                )
-
-                else -> TODO()
-            }
-        }
-
-        val conjunctionModuleToInputs = mutableMapOf<String, MutableList<String>>()
-        conjunctionModuleToReceivers.forEach {
-            conjunctionModuleToInputs.put(it.key, mutableListOf())
-        }
-
-        broadcasterReceivers.forEach {
-            if (it in conjunctionModuleToInputs) {
-                conjunctionModuleToInputs[it]!!.add("broadcaster")
-            }
-        }
-        flipFlopModuleToReceivers.forEach {
-            for (receiver in it.value) {
-                if (receiver in conjunctionModuleToInputs) {
-                    conjunctionModuleToInputs[receiver]!!.add(it.key)
-                }
-            }
-        }
-        conjunctionModuleToReceivers.forEach {
-            for (receiver in it.value) {
-                if (receiver in conjunctionModuleToInputs) {
-                    conjunctionModuleToInputs[receiver]!!.add(it.key)
-                }
-            }
-        }
-
-        println("broadcasterReceivers: $broadcasterReceivers")
-        println("flipFlopModuleToReceivers: $flipFlopModuleToReceivers")
-        println("conjunctionModuleToReceivers: $conjunctionModuleToReceivers")
-        println("conjunctionModuleToInputs: $conjunctionModuleToInputs")
-
+    class Calculator(input: List<String>) {
+        var broadcasterReceivers = emptyList<Int>()
+        val flipFlopModuleToReceivers = mutableMapOf<Int, List<Int>>()
+        val conjunctionModuleToReceivers = mutableMapOf<Int, List<Int>>()
+        val conjunctionModuleToInputs = mutableMapOf<Int, MutableList<Int>>()
         var numLowPulsesSent  = 0
         var numHighPulsesSent  = 0
 
-        var currState = State(emptyList(), buildMap {
-            conjunctionModuleToInputs.forEach {
-                put(it.key, ConjunctionModuleState(it.value, emptyList()))
+        val BROADCASTER_STRING = "broadcaster"
+        val BROADCASTER_ID = IdGenerator.getOrCreateId(BROADCASTER_STRING)
+
+        val BUTTON_STRING = "button"
+        val BUTTON_ID = IdGenerator.getOrCreateId(BUTTON_STRING)
+
+        val RX_ID: Int
+
+        init {
+            input.forEach {
+                val (part1, part2) = it.split(" -> ")
+                println("$part1, $part2")
+                when {
+                    part1 == "broadcaster" -> broadcasterReceivers = part2.split(", ").map { IdGenerator.getOrCreateId(it) }
+                    part1.startsWith("%") -> flipFlopModuleToReceivers.put(
+                        IdGenerator.getOrCreateId(part1.drop(1)),
+                        part2.split(", ").map { IdGenerator.getOrCreateId(it) }
+                    )
+
+                    part1.startsWith("&") -> conjunctionModuleToReceivers.put(
+                        IdGenerator.getOrCreateId(part1.drop(1)),
+                        part2.split(", ").map { IdGenerator.getOrCreateId(it) }
+                    )
+
+                    else -> TODO()
+                }
             }
-        })
-        var pressesNeededForRx = 0L
+
+            conjunctionModuleToReceivers.forEach {
+                conjunctionModuleToInputs.put(it.key, mutableListOf())
+            }
+
+            broadcasterReceivers.forEach {
+                if (it in conjunctionModuleToInputs) {
+                    conjunctionModuleToInputs[it]!!.add(BROADCASTER_ID)
+                }
+            }
+            flipFlopModuleToReceivers.forEach {
+                for (receiver in it.value) {
+                    if (receiver in conjunctionModuleToInputs) {
+                        conjunctionModuleToInputs[receiver]!!.add(it.key)
+                    }
+                }
+            }
+            conjunctionModuleToReceivers.forEach {
+                for (receiver in it.value) {
+                    if (receiver in conjunctionModuleToInputs) {
+                        conjunctionModuleToInputs[receiver]!!.add(it.key)
+                    }
+                }
+            }
+
+            RX_ID = IdGenerator.getOrCreateId("rx")
+
+            println("broadcasterReceivers: $broadcasterReceivers")
+            println("flipFlopModuleToReceivers: $flipFlopModuleToReceivers")
+            println("conjunctionModuleToReceivers: $conjunctionModuleToReceivers")
+            println("conjunctionModuleToInputs: $conjunctionModuleToInputs")
+        }
+
         var startTimeMillis = System.currentTimeMillis()
-        var found = false
         val NUM_ITRS_PER_LOG = 100_000
-        while (!found) {
+        var pressesNeededForRx = 0L
+        var found = false
+
+        private val BUTTON_PULSE = Pulse(PulseType.LOW, BUTTON_ID, BROADCASTER_ID)
+
+        fun pressButton(currState: State) {
             pressesNeededForRx++
-            val pulses = mutableListOf(Pulse(PulseType.LOW, "button", "broadcaster"))
+            val pulses = LinkedList<Pulse>()
+            pulses.add(BUTTON_PULSE)
 
             if (pressesNeededForRx % NUM_ITRS_PER_LOG == 0L) {
                 val currentTimeMillis = System.currentTimeMillis()
@@ -270,14 +171,13 @@ internal class `23day20` {
                     PulseType.LOW -> numLowPulsesSent++
                     PulseType.HIGH -> numHighPulsesSent++
                 }
-                if (currPulse.receiver == "rx" && currPulse.pulseType == PulseType.LOW) {
+                if (currPulse.receiver == RX_ID && currPulse.pulseType == PulseType.LOW) {
                     println("Found after $pressesNeededForRx presses.")
                     found = true
                     break
                 }
-                //                println(currPulse)
                 when {
-                    currPulse.receiver == "broadcaster" -> {
+                    currPulse.receiver == BROADCASTER_ID -> {
                         for (receiver in broadcasterReceivers) {
                             pulses.add(Pulse(currPulse.pulseType, currPulse.receiver, receiver))
                         }
@@ -296,14 +196,14 @@ internal class `23day20` {
                                         )
                                     )
                                 }
-                                currState = currState.newStateWithFlipFlopToggled(currPulse.receiver)
+                                currState.updateStateWithFlipFlopToggled(currPulse.receiver)
                             }
                             PulseType.HIGH -> Unit
                         }
                     }
 
                     conjunctionModuleToReceivers.contains(currPulse.receiver) -> {
-                        currState = currState.updateConjunctionModuleState(currPulse.receiver, currPulse.sender, currPulse.pulseType)
+                        currState.updateConjunctionModuleState(currPulse.receiver, currPulse.sender, currPulse.pulseType)
                         val nextReceivers = conjunctionModuleToReceivers[currPulse.receiver]!!
                         for (receiver in nextReceivers) {
                             val pulse = currState.getPulseOfConjunctionModule(currPulse.receiver)
@@ -314,8 +214,41 @@ internal class `23day20` {
             }
         }
 
-        println("numLowPulsesSent: $numLowPulsesSent")
-        println("numHighPulsesSent: $numHighPulsesSent")
+        fun createInitialState() = State(mutableListOf(), buildMap {
+            conjunctionModuleToInputs.forEach {
+                put(it.key, ConjunctionModuleState(it.value, mutableListOf()))
+            }
+        })
+
+        fun calculatePart1(): Long {
+            val currState = createInitialState()
+            repeat(1000) {
+                pressButton(currState)
+            }
+
+            return numLowPulsesSent.toLong() * numHighPulsesSent
+        }
+    }
+
+    private fun part1Calculation(input: List<String>): Long {
+        val converted = input.convertToDataObjectList()
+        println(converted)
+
+        val calculator = Calculator(converted)
+
+        return calculator.calculatePart1()
+    }
+
+    private fun part2Calculation(input: List<String>): Int {
+        val converted = input.convertToDataObjectList()
+        println(converted)
+
+        val calculator = Calculator(converted)
+        val currState = calculator.createInitialState()
+
+        while (!calculator.found) {
+            calculator.pressButton(currState)
+        }
 
         return 0
     }
@@ -351,15 +284,15 @@ internal class `23day20` {
     @Test
     fun part1() {
         val input = readInput(fileName)
-        assertThat(part1Calculation(input)).isEqualTo(0)
+        assertThat(part1Calculation(input)).isEqualTo(949764474L)
     }
 
-    @Test
-    fun part2Test() {
-        val input = readInput(testFileName)
-        assertThat(part2Calculation(input)).isEqualTo(0)
-    }
-
+//    @Test
+//    fun part2Test() {
+//        val input = readInput(testFileName)
+//        assertThat(part2Calculation(input)).isEqualTo(0)
+//    }
+//
     @Test
     fun part2() {
         val input = readInput(fileName)
