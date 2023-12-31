@@ -12,7 +12,7 @@ internal class `23day20` {
     }
 
     enum class PulseType {
-        LOW,HIGH
+        LOW, HIGH
     }
 
     data class ConjunctionModuleState(
@@ -23,6 +23,12 @@ internal class `23day20` {
             if (lowInputs.isEmpty() && highInputs.isNotEmpty()) return PulseType.LOW
             return PulseType.HIGH
         }
+        fun updateState(input: String, pulse: PulseType): ConjunctionModuleState {
+            return when (pulse) {
+                PulseType.LOW -> if (input in lowInputs) this else ConjunctionModuleState(lowInputs + input, highInputs - input)
+                PulseType.HIGH -> if (input in highInputs) this else ConjunctionModuleState(lowInputs - input, highInputs + input)
+            }
+        }
     }
 
     data class State(
@@ -32,25 +38,34 @@ internal class `23day20` {
         fun getPulseOfFlipFlopModule(module: String): PulseType {
             return if (module in onFlipFlopModules) PulseType.LOW else PulseType.HIGH
         }
+
         fun getPulseOfConjunctionModule(module: String): PulseType {
             return conjunctionModulesState[module]!!.getPulse()
         }
+
+        fun updateConjunctionModuleState(conjunctionModule: String, inputModule: String, pulse: PulseType): State {
+            return State(onFlipFlopModules, buildMap {
+                putAll(conjunctionModulesState)
+                put(conjunctionModule, get(conjunctionModule)!!.updateState(inputModule, pulse))
+            })
+        }
+
         fun newStateWithFlipFlopToggled(module: String): State {
             return if (module in onFlipFlopModules) {
-                State(onFlipFlopModules - module, highConjunctionModules)
+                State(onFlipFlopModules - module, conjunctionModulesState)
             } else {
-                State(onFlipFlopModules + module, highConjunctionModules)
+                State(onFlipFlopModules + module, conjunctionModulesState)
             }
         }
     }
 
-
     data class Pulse(
         val pulseType: PulseType,
+        val sender: String,
         val receiver: String
     )
 
-    private fun part1Calculation(input: List<String>): Int {
+    private fun part1Calculation(input: List<String>): Long {
         val converted = input.convertToDataObjectList()
         println(converted)
 
@@ -63,8 +78,16 @@ internal class `23day20` {
             println("$part1, $part2")
             when {
                 part1 == "broadcaster" -> broadcasterReceivers = part2.split(", ")
-                part1.startsWith("%") -> flipFlopModuleToReceivers.put(part1.drop(1), part2.split(", "))
-                part1.startsWith("&") -> conjunctionModuleToReceivers.put(part1.drop(1), part2.split(", "))
+                part1.startsWith("%") -> flipFlopModuleToReceivers.put(
+                    part1.drop(1),
+                    part2.split(", ")
+                )
+
+                part1.startsWith("&") -> conjunctionModuleToReceivers.put(
+                    part1.drop(1),
+                    part2.split(", ")
+                )
+
                 else -> TODO()
             }
         }
@@ -97,41 +120,68 @@ internal class `23day20` {
         println("broadcasterReceivers: $broadcasterReceivers")
         println("flipFlopModuleToReceivers: $flipFlopModuleToReceivers")
         println("conjunctionModuleToReceivers: $conjunctionModuleToReceivers")
-        println("conjunctionModuleToInputs: $conjunctionModuleToReceivers")
+        println("conjunctionModuleToInputs: $conjunctionModuleToInputs")
 
-        var currState = State(emptyList(), emptyList())
-        val pulses = mutableListOf(Pulse(PulseType.LOW, "broadcaster"))
+        var numLowPulsesSent  = 0
+        var numHighPulsesSent  = 0
 
-//        while (pulses.isNotEmpty()) {
-//            val currPulse = pulses.removeFirst()
-//            when {
-//                currPulse.receiver == "broadcaster" -> {
-//                    for (receiver in broadcasterReceivers) {
-//                        pulses.add(Pulse(currPulse.pulseType, receiver))
-//                    }
-//                }
-//                flipFlopModuleToReceivers.contains(currPulse.receiver) -> {
-//                    val nextReceivers = flipFlopModuleToReceivers[currPulse.receiver]!!
-//                    when (currPulse.pulseType) {
-//                        PulseType.LOW -> {
-//                            for (receiver in nextReceivers) {
-//                                pulses.add(Pulse(currState.getPulseOfFlipFlopModule(receiver), receiver))
-//                            }
-//                            currState = currState.newStateWithFlipFlopToggled(currPulse.receiver)
-//                        }
-//                        PulseType.HIGH -> Unit
-//                    }
-//                }
-//                conjunctionModuleToReceivers.contains(currPulse.receiver) -> {
-//                    val nextReceivers = conjunctionModuleToReceivers[currPulse.receiver]!!
-//                    for (receiver in nextReceivers) {
-//
-//                    }
-//                }
-//            }
-//        }
+        var currState = State(emptyList(), buildMap {
+            conjunctionModuleToInputs.forEach {
+                put(it.key, ConjunctionModuleState(it.value, emptyList()))
+            }
+        })
+        repeat(1000) {
+            val pulses = mutableListOf(Pulse(PulseType.LOW, "button", "broadcaster"))
 
-        return 0
+            while (pulses.isNotEmpty()) {
+                val currPulse = pulses.removeFirst()
+                when (currPulse.pulseType) {
+                    PulseType.LOW -> numLowPulsesSent++
+                    PulseType.HIGH -> numHighPulsesSent++
+                }
+//                println(currPulse)
+                when {
+                    currPulse.receiver == "broadcaster" -> {
+                        for (receiver in broadcasterReceivers) {
+                            pulses.add(Pulse(currPulse.pulseType, currPulse.receiver, receiver))
+                        }
+                    }
+
+                    flipFlopModuleToReceivers.contains(currPulse.receiver) -> {
+                        val nextReceivers = flipFlopModuleToReceivers[currPulse.receiver]!!
+                        when (currPulse.pulseType) {
+                            PulseType.LOW -> {
+                                for (receiver in nextReceivers) {
+                                    pulses.add(
+                                        Pulse(
+                                            currState.getPulseOfFlipFlopModule(currPulse.receiver),
+                                            currPulse.receiver,
+                                            receiver
+                                        )
+                                    )
+                                }
+                                currState = currState.newStateWithFlipFlopToggled(currPulse.receiver)
+                            }
+                            PulseType.HIGH -> Unit
+                        }
+                    }
+
+                    conjunctionModuleToReceivers.contains(currPulse.receiver) -> {
+                        currState = currState.updateConjunctionModuleState(currPulse.receiver, currPulse.sender, currPulse.pulseType)
+                        val nextReceivers = conjunctionModuleToReceivers[currPulse.receiver]!!
+                        for (receiver in nextReceivers) {
+                            val pulse = currState.getPulseOfConjunctionModule(currPulse.receiver)
+                            pulses.add(Pulse(pulse, currPulse.receiver, receiver))
+                        }
+                    }
+                }
+            }
+        }
+
+        println("numLowPulsesSent: $numLowPulsesSent")
+        println("numHighPulsesSent: $numHighPulsesSent")
+
+        return numLowPulsesSent.toLong() * numHighPulsesSent
     }
 
     private fun part2Calculation(input: List<String>): Int {
@@ -160,7 +210,13 @@ internal class `23day20` {
     @Test
     fun part1Test() {
         val input = readInput(testFileName)
-        assertThat(part1Calculation(input)).isEqualTo(0)
+        assertThat(part1Calculation(input)).isEqualTo(32000000L)
+    }
+
+    @Test
+    fun part1Test2() {
+        val input = readInput("day20_test2")
+        assertThat(part1Calculation(input)).isEqualTo(11687500L)
     }
 
     @Test
