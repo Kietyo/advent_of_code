@@ -250,13 +250,18 @@ internal class `23day20` {
             }
         })
         var pressesNeededForRx = 0L
+        var startTimeMillis = System.currentTimeMillis()
         var found = false
+        val NUM_ITRS_PER_LOG = 100_000
         while (!found) {
             pressesNeededForRx++
             val pulses = mutableListOf(Pulse(PulseType.LOW, "button", "broadcaster"))
 
-            if (pressesNeededForRx % 100_000 == 0L) {
-                println("pressesNeededForRx: $pressesNeededForRx")
+            if (pressesNeededForRx % NUM_ITRS_PER_LOG == 0L) {
+                val currentTimeMillis = System.currentTimeMillis()
+                val speed = (currentTimeMillis - startTimeMillis) / NUM_ITRS_PER_LOG.toDouble()
+                println("pressesNeededForRx: $pressesNeededForRx, millis per press: ${speed}")
+                startTimeMillis = System.currentTimeMillis()
             }
 
             while (pulses.isNotEmpty()) {
