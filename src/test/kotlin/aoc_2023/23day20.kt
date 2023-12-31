@@ -40,11 +40,11 @@ internal class `23day20` {
     }
 
     data class State(
-        val onFlipFlopModules: MutableList<Int>,
+        val onFlipFlopModules: BooleanArray,
         val conjunctionModulesState: Map<Int, ConjunctionModuleState>,
     ) {
         fun getPulseOfFlipFlopModule(module: Int): PulseType {
-            return if (module in onFlipFlopModules) PulseType.LOW else PulseType.HIGH
+            return if (onFlipFlopModules[module]) PulseType.LOW else PulseType.HIGH
         }
 
         fun getPulseOfConjunctionModule(module: Int): PulseType {
@@ -56,10 +56,10 @@ internal class `23day20` {
         }
 
         fun updateStateWithFlipFlopToggled(module: Int) {
-            if (module in onFlipFlopModules) {
-                onFlipFlopModules -= module
+            if (onFlipFlopModules[module]) {
+                onFlipFlopModules[module] = false
             } else {
-                onFlipFlopModules += module
+                onFlipFlopModules[module] = true
             }
         }
     }
@@ -80,10 +80,10 @@ internal class `23day20` {
     }
 
     class Calculator(input: List<String>) {
-        var broadcasterReceivers = IntArray(0)
-        var flipFlopModuleToReceiversOptimized = Array(0) { IntArray(0) }
-        var conjunctionModuleToReceiversOptimized = Array(0) { IntArray(0) }
-        var conjunctionModuleToInputsOptimized = Array(0) { IntArray(0) }
+        private var broadcasterReceivers = IntArray(0)
+        private var flipFlopModuleToReceiversOptimized = Array(0) { IntArray(0) }
+        private var conjunctionModuleToReceiversOptimized = Array(0) { IntArray(0) }
+        private var conjunctionModuleToInputsOptimized = Array(0) { IntArray(0) }
         var numLowPulsesSent  = 0
         var numHighPulsesSent  = 0
 
@@ -164,7 +164,7 @@ internal class `23day20` {
             println("conjunctionModuleToInputs: $conjunctionModuleToInputs")
         }
 
-        var startTimeMillis = System.currentTimeMillis()
+        var startTimeNanos = System.nanoTime()
         val NUM_ITRS_PER_LOG = 100_000
         var pressesNeededForRx = 0L
         var found = false
@@ -177,10 +177,10 @@ internal class `23day20` {
             pulses.add(BUTTON_PULSE)
 
             if (pressesNeededForRx % NUM_ITRS_PER_LOG == 0L) {
-                val currentTimeMillis = System.currentTimeMillis()
-                val speed = (currentTimeMillis - startTimeMillis) / NUM_ITRS_PER_LOG.toDouble()
-                println("pressesNeededForRx: $pressesNeededForRx, millis per press: ${speed}")
-                startTimeMillis = System.currentTimeMillis()
+                val currentTimeNano = System.nanoTime()
+                val speed = (currentTimeNano - startTimeNanos) / NUM_ITRS_PER_LOG.toDouble()
+                println("pressesNeededForRx: $pressesNeededForRx, nanos per press: ${speed}")
+                startTimeNanos = System.nanoTime()
             }
 
             while (pulses.isNotEmpty()) {
@@ -232,7 +232,7 @@ internal class `23day20` {
             }
         }
 
-        fun createInitialState() = State(mutableListOf(), buildMap {
+        fun createInitialState() = State(BooleanArray(IdGenerator.maxId()), buildMap {
             conjunctionModuleToInputsOptimized.forEachIndexed { index, ints ->
                 if (ints.isNotEmpty()) {
                     put(index, ConjunctionModuleState(ints.toMutableList(), mutableListOf()))
