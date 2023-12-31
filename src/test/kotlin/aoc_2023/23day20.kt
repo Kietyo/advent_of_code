@@ -79,27 +79,28 @@ internal class `23day20` {
     }
 
     class Calculator(input: List<String>) {
-        var broadcasterReceivers = emptyList<Int>()
+        var broadcasterReceivers = IntArray(0)
         val flipFlopModuleToReceivers = mutableMapOf<Int, List<Int>>()
         val conjunctionModuleToReceivers = mutableMapOf<Int, List<Int>>()
         val conjunctionModuleToInputs = mutableMapOf<Int, MutableList<Int>>()
         var numLowPulsesSent  = 0
         var numHighPulsesSent  = 0
 
-        val BROADCASTER_STRING = "broadcaster"
-        val BROADCASTER_ID = IdGenerator.getOrCreateId(BROADCASTER_STRING)
+        private val BROADCASTER_STRING = "broadcaster"
+        private val BROADCASTER_ID = IdGenerator.getOrCreateId(BROADCASTER_STRING)
 
-        val BUTTON_STRING = "button"
-        val BUTTON_ID = IdGenerator.getOrCreateId(BUTTON_STRING)
+        private val BUTTON_STRING = "button"
+        private val BUTTON_ID = IdGenerator.getOrCreateId(BUTTON_STRING)
 
-        val RX_ID: Int
+        private val RX_STRING = "rx"
+        val RX_ID = IdGenerator.getOrCreateId(RX_STRING)
 
         init {
             input.forEach {
                 val (part1, part2) = it.split(" -> ")
                 println("$part1, $part2")
                 when {
-                    part1 == "broadcaster" -> broadcasterReceivers = part2.split(", ").map { IdGenerator.getOrCreateId(it) }
+                    part1 == "broadcaster" -> broadcasterReceivers = part2.split(", ").map { IdGenerator.getOrCreateId(it) }.toIntArray()
                     part1.startsWith("%") -> flipFlopModuleToReceivers.put(
                         IdGenerator.getOrCreateId(part1.drop(1)),
                         part2.split(", ").map { IdGenerator.getOrCreateId(it) }
@@ -137,8 +138,6 @@ internal class `23day20` {
                     }
                 }
             }
-
-            RX_ID = IdGenerator.getOrCreateId("rx")
 
             println("broadcasterReceivers: $broadcasterReceivers")
             println("flipFlopModuleToReceivers: $flipFlopModuleToReceivers")
