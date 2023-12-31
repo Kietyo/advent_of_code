@@ -18,24 +18,26 @@ internal class `23day20` {
     }
 
     data class ConjunctionModuleState(
-        val lowInputs: MutableList<Int>,
-        val highInputs: MutableList<Int>
+        val inputIds: IntArray,
+        val lowInputs: BooleanArray,
+        val highInputs: BooleanArray
     ) {
+        fun hasNoLowInputs() = inputIds.all { !lowInputs[it] }
         fun getPulse(): PulseType {
-            if (lowInputs.isEmpty() && highInputs.isNotEmpty()) return PulseType.LOW
+            if (hasNoLowInputs()) return PulseType.LOW
             return PulseType.HIGH
         }
 
         fun updateState(input: Int, pulse: PulseType) {
             when (pulse) {
-                PulseType.LOW -> if (input in lowInputs) Unit else {
-                    lowInputs += input
-                    highInputs -= input
+                PulseType.LOW -> if (lowInputs[input]) Unit else {
+                    lowInputs[input] = true
+                    highInputs[input] = false
                 }
 
-                PulseType.HIGH -> if (input in highInputs) Unit else {
-                    lowInputs -= input
-                    highInputs += input
+                PulseType.HIGH -> if (highInputs[input]) Unit else {
+                    lowInputs[input] = false
+                    highInputs[input] = true
                 }
             }
         }
@@ -254,7 +256,12 @@ internal class `23day20` {
             Array(IdGenerator.maxId()) {
                 val ints = conjunctionModuleToInputsOptimized[it]
                 if (ints.isNotEmpty()) {
-                    ConjunctionModuleState(ints.toMutableList(), mutableListOf())
+                    ConjunctionModuleState(
+                        ints,
+                        BooleanArray(IdGenerator.maxId()) {
+                                                          it in ints
+                        },
+                        BooleanArray(IdGenerator.maxId()))
                 } else {
                     null
                 }
