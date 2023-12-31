@@ -76,11 +76,12 @@ internal class `23day20` {
         fun getOrCreateId(name: String): Int {
             return nameToId.computeIfAbsent(name) { currId++}
         }
+        fun maxId() = currId
     }
 
     class Calculator(input: List<String>) {
         var broadcasterReceivers = IntArray(0)
-        val flipFlopModuleToReceivers = mutableMapOf<Int, List<Int>>()
+        var flipFlopModuleToReceiversOptimized = Array<IntArray>(0) { IntArray(0) }
         val conjunctionModuleToReceivers = mutableMapOf<Int, List<Int>>()
         val conjunctionModuleToInputs = mutableMapOf<Int, MutableList<Int>>()
         var numLowPulsesSent  = 0
@@ -96,6 +97,8 @@ internal class `23day20` {
         val RX_ID = IdGenerator.getOrCreateId(RX_STRING)
 
         init {
+            val flipFlopModuleToReceivers = mutableMapOf<Int, List<Int>>()
+
             input.forEach {
                 val (part1, part2) = it.split(" -> ")
                 println("$part1, $part2")
@@ -136,6 +139,16 @@ internal class `23day20` {
                     if (receiver in conjunctionModuleToInputs) {
                         conjunctionModuleToInputs[receiver]!!.add(it.key)
                     }
+                }
+            }
+
+            val flipFlopMaxKeyId = flipFlopModuleToReceivers.keys.max()
+            flipFlopModuleToReceiversOptimized = Array(IdGenerator.maxId()) {
+                val receivers = flipFlopModuleToReceivers.get(it)
+                if (receivers == null) {
+                    IntArray(0)
+                } else {
+                    receivers.toIntArray()
                 }
             }
 
@@ -182,8 +195,8 @@ internal class `23day20` {
                         }
                     }
 
-                    flipFlopModuleToReceivers.contains(currPulse.receiver) -> {
-                        val nextReceivers = flipFlopModuleToReceivers[currPulse.receiver]!!
+                    flipFlopModuleToReceiversOptimized[currPulse.receiver].isNotEmpty() -> {
+                        val nextReceivers = flipFlopModuleToReceiversOptimized[currPulse.receiver]
                         when (currPulse.pulseType) {
                             PulseType.LOW -> {
                                 for (receiver in nextReceivers) {
