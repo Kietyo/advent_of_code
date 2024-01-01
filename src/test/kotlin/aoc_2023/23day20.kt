@@ -1,5 +1,6 @@
 package aoc_2023
 
+import CircularArray
 import com.kietyo.ktruth.assertThat
 import java.util.LinkedList
 import java.util.Queue
@@ -17,12 +18,12 @@ internal class `23day20` {
         LOW, HIGH
     }
 
-    data class ConjunctionModuleState(
-        val inputIds: IntArray,
-        val lowInputs: BooleanArray,
-        val highInputs: BooleanArray
+    class ConjunctionModuleState(
+        private val inputIds: IntArray,
+        private val lowInputs: BooleanArray,
+        private val highInputs: BooleanArray
     ) {
-        fun hasNoLowInputs() = inputIds.all { !lowInputs[it] }
+        private fun hasNoLowInputs() = inputIds.all { !lowInputs[it] }
         fun getPulse(): PulseType {
             if (hasNoLowInputs()) return PulseType.LOW
             return PulseType.HIGH
@@ -34,7 +35,6 @@ internal class `23day20` {
                     lowInputs[input] = true
                     highInputs[input] = false
                 }
-
                 PulseType.HIGH -> if (highInputs[input]) Unit else {
                     lowInputs[input] = false
                     highInputs[input] = true
@@ -43,9 +43,9 @@ internal class `23day20` {
         }
     }
 
-    data class State(
-        val onFlipFlopModules: BooleanArray,
-        val conjunctionModulesState: Array<ConjunctionModuleState?>,
+    class State(
+        private val onFlipFlopModules: BooleanArray,
+        private val conjunctionModulesState: Array<ConjunctionModuleState?>,
     ) {
         fun getPulseOfFlipFlopModule(module: Int): PulseType {
             return if (onFlipFlopModules[module]) PulseType.LOW else PulseType.HIGH
@@ -64,11 +64,7 @@ internal class `23day20` {
         }
 
         fun updateStateWithFlipFlopToggled(module: Int) {
-            if (onFlipFlopModules[module]) {
-                onFlipFlopModules[module] = false
-            } else {
-                onFlipFlopModules[module] = true
-            }
+            onFlipFlopModules[module] = !onFlipFlopModules[module]
         }
     }
 
@@ -84,7 +80,6 @@ internal class `23day20` {
         fun getOrCreateId(name: String): Int {
             return nameToId.computeIfAbsent(name) { currId++ }
         }
-
         fun maxId() = currId
     }
 
@@ -175,10 +170,11 @@ internal class `23day20` {
             println("flipFlopModuleToReceivers: $flipFlopModuleToReceivers")
             println("conjunctionModuleToReceivers: $conjunctionModuleToReceivers")
             println("conjunctionModuleToInputs: $conjunctionModuleToInputs")
+            println("IdGenerator.maxId(): ${IdGenerator.maxId()}")
         }
 
         var startTimeNanos = System.nanoTime()
-        val NUM_ITRS_PER_LOG = 100_000
+        val NUM_ITRS_PER_LOG = 1_000_000
         var pressesNeededForRx = 0L
         var found = false
 
@@ -195,6 +191,9 @@ internal class `23day20` {
                 println("pressesNeededForRx: $pressesNeededForRx, nanos per press: ${speed}")
                 startTimeNanos = System.nanoTime()
             }
+
+            // 9,223,372,036,854,775,807
+            //               906,000,000
 
             while (pulses.isNotEmpty()) {
                 val currPulse = pulses.removeFirst()
@@ -213,7 +212,6 @@ internal class `23day20` {
                             pulses.add(Pulse(currPulse.pulseType, currPulse.receiver, receiver))
                         }
                     }
-
                     flipFlopModuleToReceiversOptimized[currPulse.receiver].isNotEmpty() -> {
                         val nextReceivers = flipFlopModuleToReceiversOptimized[currPulse.receiver]
                         when (currPulse.pulseType) {
@@ -233,7 +231,6 @@ internal class `23day20` {
                             PulseType.HIGH -> Unit
                         }
                     }
-
                     conjunctionModuleToReceiversOptimized[currPulse.receiver].isNotEmpty() -> {
                         currState.updateConjunctionModuleState(
                             currPulse.receiver,
@@ -259,9 +256,10 @@ internal class `23day20` {
                     ConjunctionModuleState(
                         ints,
                         BooleanArray(IdGenerator.maxId()) {
-                                                          it in ints
+                            it in ints
                         },
-                        BooleanArray(IdGenerator.maxId()))
+                        BooleanArray(IdGenerator.maxId())
+                    )
                 } else {
                     null
                 }
