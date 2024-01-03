@@ -8,6 +8,7 @@ import utils.MutableRangeGrid
 import utils.Range
 import utils.forEachWithDefault
 import utils.toip
+import kotlin.math.abs
 import kotlin.test.Test
 
 internal class `23day18` {
@@ -238,12 +239,18 @@ internal class `23day18` {
             grid.add(r)
             numWalls += r.range
             current = end
-            val widthOffset = if (start.x < end.x) -1 else 1
-            val width = if (r.isVerticalRange) 1 else (start.x - end.x + widthOffset)
-            val height = if (r.isHorizontalRange) (end.y + 1) else (end.y + 1)
-            val currSum = width * height
-            sum += currSum
+            if (r.isHorizontalRange && r.range > 1) {
+                val offset = if (end.x > start.x) 1 else -1
+//                val offset = 0
+                sum += (start.y) * (end.x - start.x - offset)
+            } else {
+//                sum += 1 * end.y
+            }
         }
+
+        println("sum1: $sum")
+
+        sum = abs(sum / 2) + numWalls
 
         println(grid)
         println("width: ${grid.width}")

@@ -1,9 +1,7 @@
 package aoc_2023
 
-import CircularArray
 import com.kietyo.ktruth.assertThat
 import java.util.LinkedList
-import java.util.Queue
 import kotlin.test.Test
 
 internal class `23day20` {
@@ -19,25 +17,26 @@ internal class `23day20` {
     }
 
     class ConjunctionModuleState(
-        private val inputIds: IntArray,
+        private val inputIds: ByteArray,
         private val lowInputs: BooleanArray,
         private val highInputs: BooleanArray
     ) {
-        private fun hasNoLowInputs() = inputIds.all { !lowInputs[it] }
+        private fun hasNoLowInputs() = inputIds.all { !lowInputs[it.toInt()] }
         fun getPulse(): PulseType {
             if (hasNoLowInputs()) return PulseType.LOW
             return PulseType.HIGH
         }
 
-        fun updateState(input: Int, pulse: PulseType) {
+        fun updateState(input: Byte, pulse: PulseType) {
+            val inputInt = input.toInt()
             when (pulse) {
-                PulseType.LOW -> if (lowInputs[input]) Unit else {
-                    lowInputs[input] = true
-                    highInputs[input] = false
+                PulseType.LOW -> if (lowInputs[inputInt]) Unit else {
+                    lowInputs[inputInt] = true
+                    highInputs[inputInt] = false
                 }
-                PulseType.HIGH -> if (highInputs[input]) Unit else {
-                    lowInputs[input] = false
-                    highInputs[input] = true
+                PulseType.HIGH -> if (highInputs[inputInt]) Unit else {
+                    lowInputs[inputInt] = false
+                    highInputs[inputInt] = true
                 }
             }
         }
@@ -47,47 +46,47 @@ internal class `23day20` {
         private val onFlipFlopModules: BooleanArray,
         private val conjunctionModulesState: Array<ConjunctionModuleState?>,
     ) {
-        fun getPulseOfFlipFlopModule(module: Int): PulseType {
-            return if (onFlipFlopModules[module]) PulseType.LOW else PulseType.HIGH
+        fun getPulseOfFlipFlopModule(module: Byte): PulseType {
+            return if (onFlipFlopModules[module.toInt()]) PulseType.LOW else PulseType.HIGH
         }
 
-        fun getPulseOfConjunctionModule(module: Int): PulseType {
-            return conjunctionModulesState[module]!!.getPulse()
+        fun getPulseOfConjunctionModule(module: Byte): PulseType {
+            return conjunctionModulesState[module.toInt()]!!.getPulse()
         }
 
         fun updateConjunctionModuleState(
-            conjunctionModule: Int,
-            inputModule: Int,
+            conjunctionModule: Byte,
+            inputModule: Byte,
             pulse: PulseType
         ) {
-            conjunctionModulesState[conjunctionModule]!!.updateState(inputModule, pulse)
+            conjunctionModulesState[conjunctionModule.toInt()]!!.updateState(inputModule, pulse)
         }
 
-        fun updateStateWithFlipFlopToggled(module: Int) {
-            onFlipFlopModules[module] = !onFlipFlopModules[module]
+        fun updateStateWithFlipFlopToggled(module: Byte) {
+            onFlipFlopModules[module.toInt()] = !onFlipFlopModules[module.toInt()]
         }
     }
 
     data class Pulse(
         val pulseType: PulseType,
-        val sender: Int,
-        val receiver: Int
+        val sender: Byte,
+        val receiver: Byte
     )
 
     object IdGenerator {
-        private var currId = 0
-        private val nameToId = mutableMapOf<String, Int>()
-        fun getOrCreateId(name: String): Int {
+        private var currId = 0.toByte()
+        private val nameToId = mutableMapOf<String, Byte>()
+        fun getOrCreateId(name: String): Byte {
             return nameToId.computeIfAbsent(name) { currId++ }
         }
         fun maxId() = currId
     }
 
     class Calculator(input: List<String>) {
-        private var broadcasterReceivers = IntArray(0)
-        private var flipFlopModuleToReceiversOptimized = Array(0) { IntArray(0) }
-        private var conjunctionModuleToReceiversOptimized = Array(0) { IntArray(0) }
-        private var conjunctionModuleToInputsOptimized = Array(0) { IntArray(0) }
+        private var broadcasterReceivers = ByteArray(0)
+        private var flipFlopModuleToReceiversOptimized = Array(0) { ByteArray(0) }
+        private var conjunctionModuleToReceiversOptimized = Array(0) { ByteArray(0) }
+        private var conjunctionModuleToInputsOptimized = Array(0) { ByteArray(0) }
         var numLowPulsesSent = 0
         var numHighPulsesSent = 0
 
@@ -101,16 +100,16 @@ internal class `23day20` {
         val RX_ID = IdGenerator.getOrCreateId(RX_STRING)
 
         init {
-            val flipFlopModuleToReceivers = mutableMapOf<Int, List<Int>>()
-            val conjunctionModuleToReceivers = mutableMapOf<Int, List<Int>>()
-            val conjunctionModuleToInputs = mutableMapOf<Int, MutableList<Int>>()
+            val flipFlopModuleToReceivers = mutableMapOf<Byte, List<Byte>>()
+            val conjunctionModuleToReceivers = mutableMapOf<Byte, List<Byte>>()
+            val conjunctionModuleToInputs = mutableMapOf<Byte, MutableList<Byte>>()
 
             input.forEach {
                 val (part1, part2) = it.split(" -> ")
                 println("$part1, $part2")
                 when {
                     part1 == "broadcaster" -> broadcasterReceivers =
-                        part2.split(", ").map { IdGenerator.getOrCreateId(it) }.toIntArray()
+                        part2.split(", ").map { IdGenerator.getOrCreateId(it) }.toByteArray()
 
                     part1.startsWith("%") -> flipFlopModuleToReceivers.put(
                         IdGenerator.getOrCreateId(part1.drop(1)),
@@ -150,20 +149,19 @@ internal class `23day20` {
                 }
             }
 
-            flipFlopModuleToReceiversOptimized = Array(IdGenerator.maxId()) {
-                val receivers = flipFlopModuleToReceivers.get(it)
-                receivers?.toIntArray()
-                    ?: IntArray(0)
+            flipFlopModuleToReceiversOptimized = Array(IdGenerator.maxId().toInt()) {
+                val receivers = flipFlopModuleToReceivers.get(it.toByte())
+                receivers?.toByteArray() ?: ByteArray(0)
             }
 
-            conjunctionModuleToReceiversOptimized = Array(IdGenerator.maxId()) {
-                conjunctionModuleToReceivers.get(it)?.toIntArray()
-                    ?: IntArray(0)
+            conjunctionModuleToReceiversOptimized = Array(IdGenerator.maxId().toInt()) {
+                conjunctionModuleToReceivers.get(it.toByte())?.toByteArray()
+                    ?: ByteArray(0)
             }
 
-            conjunctionModuleToInputsOptimized = Array(IdGenerator.maxId()) {
-                conjunctionModuleToInputs.get(it)?.toIntArray()
-                    ?: IntArray(0)
+            conjunctionModuleToInputsOptimized = Array(IdGenerator.maxId().toInt()) {
+                conjunctionModuleToInputs.get(it.toByte())?.toByteArray()
+                    ?: ByteArray(0)
             }
 
             println("broadcasterReceivers: $broadcasterReceivers")
@@ -212,8 +210,8 @@ internal class `23day20` {
                             pulses.add(Pulse(currPulse.pulseType, currPulse.receiver, receiver))
                         }
                     }
-                    flipFlopModuleToReceiversOptimized[currPulse.receiver].isNotEmpty() -> {
-                        val nextReceivers = flipFlopModuleToReceiversOptimized[currPulse.receiver]
+                    flipFlopModuleToReceiversOptimized[currPulse.receiver.toInt()].isNotEmpty() -> {
+                        val nextReceivers = flipFlopModuleToReceiversOptimized[currPulse.receiver.toInt()]
                         when (currPulse.pulseType) {
                             PulseType.LOW -> {
                                 for (receiver in nextReceivers) {
@@ -231,14 +229,14 @@ internal class `23day20` {
                             PulseType.HIGH -> Unit
                         }
                     }
-                    conjunctionModuleToReceiversOptimized[currPulse.receiver].isNotEmpty() -> {
+                    conjunctionModuleToReceiversOptimized[currPulse.receiver.toInt()].isNotEmpty() -> {
                         currState.updateConjunctionModuleState(
                             currPulse.receiver,
                             currPulse.sender,
                             currPulse.pulseType
                         )
                         val nextReceivers =
-                            conjunctionModuleToReceiversOptimized[currPulse.receiver]
+                            conjunctionModuleToReceiversOptimized[currPulse.receiver.toInt()]
                         for (receiver in nextReceivers) {
                             val pulse = currState.getPulseOfConjunctionModule(currPulse.receiver)
                             pulses.add(Pulse(pulse, currPulse.receiver, receiver))
@@ -249,16 +247,16 @@ internal class `23day20` {
         }
 
         fun createInitialState() = State(
-            BooleanArray(IdGenerator.maxId()),
-            Array(IdGenerator.maxId()) {
+            BooleanArray(IdGenerator.maxId().toInt()),
+            Array(IdGenerator.maxId().toInt()) {
                 val ints = conjunctionModuleToInputsOptimized[it]
                 if (ints.isNotEmpty()) {
                     ConjunctionModuleState(
                         ints,
-                        BooleanArray(IdGenerator.maxId()) {
-                            it in ints
+                        BooleanArray(IdGenerator.maxId().toInt()) {
+                            it.toByte() in ints
                         },
-                        BooleanArray(IdGenerator.maxId())
+                        BooleanArray(IdGenerator.maxId().toInt())
                     )
                 } else {
                     null
