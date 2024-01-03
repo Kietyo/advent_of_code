@@ -1,6 +1,7 @@
 package aoc_2023
 
 import com.kietyo.ktruth.assertThat
+import utils.CircularIntArray
 import java.util.LinkedList
 import kotlin.test.Test
 
@@ -75,7 +76,7 @@ internal class `23day20` {
 
 
     @JvmInline
-    value class PulseI(private val data: Int) {
+    value class PulseI(val data: Int) {
         constructor(pulseType: PulseType, sender: Int, receiver: Int):
                 this((((pulseType.ordinal shl MASK_LENGTH) or receiver) shl MASK_LENGTH) or sender)
         val pulseType: PulseType get() = if ((data ushr MASK_LENGTH_DOUBLE) == 1) PulseType.HIGH else PulseType.LOW
@@ -194,10 +195,12 @@ internal class `23day20` {
 
         private val BUTTON_PULSE = PulseI(PulseType.LOW, BUTTON_ID, BROADCASTER_ID)
 
+        val pulses = CircularIntArray(64)
+
         fun pressButton(currState: State) {
             pressesNeededForRx++
-            val pulses = LinkedList<PulseI>()
-            pulses.add(BUTTON_PULSE)
+            pulses.clear()
+            pulses.add(BUTTON_PULSE.data)
 
             if (pressesNeededForRx % NUM_ITRS_PER_LOG == 0L) {
                 val currentTimeNano = System.nanoTime()
@@ -214,7 +217,7 @@ internal class `23day20` {
                     maxPulsesSeen = pulses.size
                     println("maxPulsesSeen: $maxPulsesSeen")
                 }
-                val currPulse = pulses.removeFirst()
+                val currPulse = PulseI(pulses.removeFirst())
                 when (currPulse.pulseType) {
                     PulseType.LOW -> numLowPulsesSent++
                     PulseType.HIGH -> numHighPulsesSent++
@@ -227,7 +230,7 @@ internal class `23day20` {
                 when {
                     currPulse.receiver == BROADCASTER_ID -> {
                         for (receiver in broadcasterReceivers) {
-                            pulses.add(PulseI(currPulse.pulseType, currPulse.receiver, receiver))
+                            pulses.add(PulseI(currPulse.pulseType, currPulse.receiver, receiver).data)
                         }
                     }
                     flipFlopModuleToReceiversOptimized[currPulse.receiver].isNotEmpty() -> {
@@ -240,7 +243,7 @@ internal class `23day20` {
                                             currState.getPulseOfFlipFlopModule(currPulse.receiver),
                                             currPulse.receiver,
                                             receiver
-                                        )
+                                        ).data
                                     )
                                 }
                                 currState.updateStateWithFlipFlopToggled(currPulse.receiver)
@@ -259,7 +262,7 @@ internal class `23day20` {
                             conjunctionModuleToReceiversOptimized[currPulse.receiver.toInt()]
                         for (receiver in nextReceivers) {
                             val pulse = currState.getPulseOfConjunctionModule(currPulse.receiver)
-                            pulses.add(PulseI(pulse, currPulse.receiver, receiver))
+                            pulses.add(PulseI(pulse, currPulse.receiver, receiver).data)
                         }
                     }
                 }

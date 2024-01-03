@@ -10,17 +10,24 @@ class CircularIntArray(maxSize: Int) {
     val maxSize get() = backingArray.size
     val size get() = currSize
 
+    fun clear() {
+        currSize = 0
+        frontIdx = 0
+        backIdx = 0
+    }
+
     private fun getThenIncrementBackIndex(): Int {
+        if (currSize+1 > backingArray.size)
+            throw UnsupportedOperationException("Exceeded backing array size (${backingArray.size})")
         val curr = backIdx
         backIdx = (backIdx + 1) % backingArray.size
         currSize++
-        if (currSize > backingArray.size)
-            throw UnsupportedOperationException("Exceeded backing array size (${backingArray.size})")
         return curr
     }
 
     private fun incrementFrontIndex() {
         frontIdx = (frontIdx + 1) % backingArray.size
+        currSize--
     }
 
     fun add(data: Int) {
@@ -33,4 +40,7 @@ class CircularIntArray(maxSize: Int) {
         incrementFrontIndex()
         return first
     }
+
+    fun isEmpty() = currSize == 0
+    fun isNotEmpty() = currSize > 0
 }
