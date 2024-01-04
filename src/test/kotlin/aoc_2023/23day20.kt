@@ -1,5 +1,7 @@
 package aoc_2023
 
+import aoc_2023.day20.PulseI
+import aoc_2023.day20.PulseType
 import com.kietyo.ktruth.assertThat
 import utils.CircularIntArray
 import java.util.LinkedList
@@ -13,23 +15,20 @@ internal class `23day20` {
         this
     }
 
-    enum class PulseType {
-        LOW, HIGH
-    }
 
     class ConjunctionModuleState(
         private val inputIds: IntArray,
         private val lowInputs: BooleanArray,
         private val highInputs: BooleanArray
     ) {
-        private fun hasNoLowInputs() = inputIds.all { !lowInputs[it.toInt()] }
+        private fun hasNoLowInputs() = inputIds.all { !lowInputs[it] }
         fun getPulse(): PulseType {
             if (hasNoLowInputs()) return PulseType.LOW
             return PulseType.HIGH
         }
 
         fun updateState(input: Int, pulse: PulseType) {
-            val inputInt = input.toInt()
+            val inputInt = input
             when (pulse) {
                 PulseType.LOW -> if (lowInputs[inputInt]) Unit else {
                     lowInputs[inputInt] = true
@@ -48,11 +47,11 @@ internal class `23day20` {
         private val conjunctionModulesState: Array<ConjunctionModuleState?>,
     ) {
         fun getPulseOfFlipFlopModule(module: Int): PulseType {
-            return if (onFlipFlopModules[module.toInt()]) PulseType.LOW else PulseType.HIGH
+            return if (onFlipFlopModules[module]) PulseType.LOW else PulseType.HIGH
         }
 
         fun getPulseOfConjunctionModule(module: Int): PulseType {
-            return conjunctionModulesState[module.toInt()]!!.getPulse()
+            return conjunctionModulesState[module]!!.getPulse()
         }
 
         fun updateConjunctionModuleState(
@@ -68,26 +67,7 @@ internal class `23day20` {
         }
     }
 
-    data class Pulse(
-        val pulseType: PulseType,
-        val sender: Int,
-        val receiver: Int
-    )
 
-
-    @JvmInline
-    value class PulseI(val data: Int) {
-        constructor(pulseType: PulseType, sender: Int, receiver: Int):
-                this((((pulseType.ordinal shl MASK_LENGTH) or receiver) shl MASK_LENGTH) or sender)
-        val pulseType: PulseType get() = if ((data ushr MASK_LENGTH_DOUBLE) == 1) PulseType.HIGH else PulseType.LOW
-        val sender: Int get() = (data and PACK_6_MASK)
-        val receiver: Int get() = ((data ushr MASK_LENGTH) and PACK_6_MASK)
-        companion object {
-            const val PACK_6_MASK = 0b1111111
-            const val MASK_LENGTH = 7
-            const val MASK_LENGTH_DOUBLE = MASK_LENGTH * 2
-        }
-    }
 
     object IdGenerator {
         private var currId = 0
