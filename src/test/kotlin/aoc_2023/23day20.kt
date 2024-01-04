@@ -252,14 +252,14 @@ internal class `23day20` {
                             PulseType.HIGH -> Unit
                         }
                     }
-                    conjunctionModuleToReceiversOptimized[currPulse.receiver.toInt()].isNotEmpty() -> {
+                    conjunctionModuleToReceiversOptimized[currPulse.receiver].isNotEmpty() -> {
                         currState.updateConjunctionModuleState(
                             currPulse.receiver,
                             currPulse.sender,
                             currPulse.pulseType
                         )
                         val nextReceivers =
-                            conjunctionModuleToReceiversOptimized[currPulse.receiver.toInt()]
+                            conjunctionModuleToReceiversOptimized[currPulse.receiver]
                         for (receiver in nextReceivers) {
                             val pulse = currState.getPulseOfConjunctionModule(currPulse.receiver)
                             pulses.add(PulseI(pulse, currPulse.receiver, receiver).data)
@@ -270,16 +270,16 @@ internal class `23day20` {
         }
 
         fun createInitialState() = State(
-            BooleanArray(IdGenerator.maxId().toInt()),
+            BooleanArray(IdGenerator.maxId()),
             Array(IdGenerator.maxId().toInt()) {
                 val ints = conjunctionModuleToInputsOptimized[it]
                 if (ints.isNotEmpty()) {
                     ConjunctionModuleState(
                         ints,
-                        BooleanArray(IdGenerator.maxId().toInt()) {
+                        BooleanArray(IdGenerator.maxId()) {
                             it in ints
                         },
-                        BooleanArray(IdGenerator.maxId().toInt())
+                        BooleanArray(IdGenerator.maxId())
                     )
                 } else {
                     null
