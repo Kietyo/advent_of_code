@@ -4,7 +4,6 @@ import aoc_2023.day20.PulseI
 import aoc_2023.day20.PulseType
 import com.kietyo.ktruth.assertThat
 import utils.CircularIntArray
-import java.util.LinkedList
 import kotlin.test.Test
 
 internal class `23day20` {
@@ -59,11 +58,11 @@ internal class `23day20` {
             inputModule: Int,
             pulse: PulseType
         ) {
-            conjunctionModulesState[conjunctionModule.toInt()]!!.updateState(inputModule, pulse)
+            conjunctionModulesState[conjunctionModule]!!.updateState(inputModule, pulse)
         }
 
         fun updateStateWithFlipFlopToggled(module: Int) {
-            onFlipFlopModules[module.toInt()] = !onFlipFlopModules[module.toInt()]
+            onFlipFlopModules[module] = !onFlipFlopModules[module]
         }
     }
 
@@ -99,7 +98,6 @@ internal class `23day20` {
             val flipFlopModuleToReceivers = mutableMapOf<Int, List<Int>>()
             val conjunctionModuleToReceivers = mutableMapOf<Int, List<Int>>()
             val conjunctionModuleToInputs = mutableMapOf<Int, MutableList<Int>>()
-
             input.forEach {
                 val (part1, part2) = it.split(" -> ")
                 println("$part1, $part2")
@@ -184,8 +182,10 @@ internal class `23day20` {
 
             if (pressesNeededForRx % NUM_ITRS_PER_LOG == 0L) {
                 val currentTimeNano = System.nanoTime()
-                val speed = (currentTimeNano - startTimeNanos) / NUM_ITRS_PER_LOG.toDouble()
-                println("pressesNeededForRx: $pressesNeededForRx, nanos per press: ${speed}")
+                val diff = currentTimeNano - startTimeNanos
+                val diffAsMillis = diff / 1_000_000
+                val speed = (diff) / NUM_ITRS_PER_LOG.toDouble()
+                println("pressesNeededForRx: $pressesNeededForRx, nanos per press: ${speed}, diffAsMillis: $diffAsMillis")
                 startTimeNanos = System.nanoTime()
             }
 
