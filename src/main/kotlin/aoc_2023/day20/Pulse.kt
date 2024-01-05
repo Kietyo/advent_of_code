@@ -14,7 +14,11 @@ data class Pulse(
 value class PulseI(val data: Int) {
     constructor(pulseType: PulseType, sender: Int, receiver: Int):
             this((((pulseType.ordinal shl MASK_LENGTH) or receiver) shl MASK_LENGTH) or sender)
-    val pulseType: PulseType get() = if ((data ushr MASK_LENGTH_DOUBLE) == 1) PulseType.HIGH else PulseType.LOW
+
+    val pulseType: PulseType get() = if (data ushr MASK_LENGTH_DOUBLE == 1) PulseType.HIGH else PulseType.LOW
+    val pulseTypeV2: PulseType get() = PulseType.entries[data ushr MASK_LENGTH_DOUBLE]
+    val pulseTypeV3: Int get() = data ushr MASK_LENGTH_DOUBLE
+
     val sender: Int get() = (data and PACK_7_MASK)
     val receiver: Int get() = ((data ushr MASK_LENGTH) and PACK_7_MASK)
     companion object {

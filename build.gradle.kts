@@ -64,6 +64,7 @@ kotlin {
 benchmark {
     configurations {
         named("main") {
+            warmups = 3
             iterations = 5
             iterationTime = 1
             iterationTimeUnit = "sec"
