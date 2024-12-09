@@ -8,6 +8,9 @@ import kotlin.math.sin
 
 infix fun Int.ind(v: String) = IndexedValue(this, v)
 
+fun <E> List<E>.second(): E {
+    return this[1]!!
+}
 
 fun String.splitByPredicate(predicate: (Char) -> Boolean) = splitByPredicateIndexed(predicate).map {
     it.value

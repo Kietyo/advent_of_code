@@ -74,6 +74,8 @@ internal class `24day1` {
         assertThat(part2Calculation(input)).isEqualTo(31)
     }
 
+
+
     @Test
     fun part2() {
         val input = readInput(fileName)
