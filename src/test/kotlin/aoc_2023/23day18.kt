@@ -261,7 +261,7 @@ internal class `23day18` {
         return sum
     }
 
-    private fun part1Calculation(input: List<String>, pointInInner: IntPoint): Long {
+    private fun part1Calculation(input: List<String>): Long {
         val converted = input.convertToDataObjectList()
 
         println(converted)
@@ -309,25 +309,26 @@ internal class `23day18` {
         }
         println(instructions.joinToString("\n"))
 
-        return internalCalculateV2(instructions)
+        return 0L
+//        return internalCalculateV2(instructions)
     }
 
     @Test
     fun part1Test() {
         val input = readInput(testFileName)
-        assertThat(part1Calculation(input, 1 toip 1)).isEqualTo(62)
+        assertThat(part1Calculation(input)).isEqualTo(62)
     }
 
     @Test
     fun part1Test2() {
         val input = readInput("day18_test2")
-        assertThat(part1Calculation(input, 1 toip 1)).isEqualTo(18)
+        assertThat(part1Calculation(input)).isEqualTo(18)
     }
 
     @Test
     fun part1() {
         val input = readInput(fileName)
-        assertThat(part1Calculation(input, 65 toip -232)).isEqualTo(61865)
+        assertThat(part1Calculation(input)).isEqualTo(61865)
     }
 
     @Test
