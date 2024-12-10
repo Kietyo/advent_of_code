@@ -5,7 +5,8 @@ import utils.second
 import kotlin.math.absoluteValue
 import kotlin.test.Test
 
-fun List<Int>.isSafe(): Boolean = windowed(2).all { (a, b) -> (b - a) in (1..3) } ||
+fun List<Int>.isSafe(): Boolean =
+    windowed(2).all { (a, b) -> (b - a) in (1..3) } ||
         windowed(2).all { (a, b) -> (a - b) in (1..3) }
 
 
