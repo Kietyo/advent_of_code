@@ -22,7 +22,7 @@ data class PointWithData<T>(
 
 class MutableArrayGrid<T : Any>(
     val data: List<Array<T>>
-): Grid<T> {
+): Grid<T>, Iterable<PointWithData<T>> {
     override val minX: Int get() = 0
     override val maxX: Int get() = data.maxOf { it.size }-1
     override val minY: Int get() = 0
@@ -30,6 +30,34 @@ class MutableArrayGrid<T : Any>(
 
     init {
 //        println("numRows: $numRows, numColumns: $numColumns")
+    }
+
+    override fun iterator(): Iterator<PointWithData<T>> =  object : Iterator<PointWithData<T>> {
+        private var currentRow = 0
+        private var currentCol = 0
+
+        override fun hasNext(): Boolean {
+            return currentRow < data.size && currentCol < data[currentRow].size
+        }
+
+        override fun next(): PointWithData<T> {
+            if (!hasNext()) throw NoSuchElementException()
+
+            val pointData = PointWithData(
+                data = data[currentRow][currentCol],
+                x = currentCol,
+                y = currentRow,
+                relativeDirection = Direction.UP // Or another default direction
+            )
+
+            currentCol++
+            if (currentCol >= data[currentRow].size) {
+                currentCol = 0
+                currentRow++
+            }
+
+            return pointData
+        }
     }
 
     override fun toString(): String {
